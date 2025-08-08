@@ -9,7 +9,7 @@ const config: ForgeConfig = {
     asar: true,
   },
   rebuildConfig: {},
-  makers: [new MakerZIP({}, ['darwin', 'win32', 'linux'])],
+  makers: [new MakerZIP({}, ['darwin'])],
   plugins: [
     new VitePlugin({
       // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
