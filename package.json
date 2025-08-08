@@ -6,6 +6,8 @@
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "format": "prettier --check .",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -23,15 +25,20 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
     "@electron-forge/plugin-fuses": "^7.8.1",
     "@electron-forge/plugin-vite": "^7.8.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "@electron/fuses": "^1.8.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "electron": "37.2.4",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
+    "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
-    "typescript": "~4.5.4",
+    "typescript": "^5.5.4",
     "vite": "^5.4.19"
   },
-  "dependencies": {}
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
 }
