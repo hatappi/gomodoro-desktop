@@ -4,7 +4,7 @@ import path from 'path';
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/main.ts'),
+      entry: path.resolve(__dirname, 'src/main/main.ts'),
       formats: ['cjs'],
       fileName: () => 'main.js',
     },
