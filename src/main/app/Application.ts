@@ -4,6 +4,8 @@ export default class Application {
     // Startup log only for now
     // eslint-disable-next-line no-console
     console.log('[Application] init');
+    const { registerIpcHandlers } = await import('../ipc/handlers');
+    registerIpcHandlers();
   }
 }
 
