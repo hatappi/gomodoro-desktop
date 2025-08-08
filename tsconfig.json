@@ -15,6 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "lib": ["ES2021", "DOM"],
-    "types": ["node"]
+    "jsx": "react-jsx",
+    "types": ["node", "react", "react-dom"]
   }
 }
