@@ -79,16 +79,71 @@ export function usePomodoro(): UsePomodoroResult {
     };
   }, [pomodoro?.state, pomodoro?.remainingTimeSec]);
 
-  const start = async (_taskId?: string) => {
-    // Not wired yet in Step 8; will be connected in Step 9
-    setError('Not implemented');
+  const start = async (taskId?: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // For now, use fixed durations; these could come from settings later
+      const input = {
+        workDurationSec: 1500,
+        breakDurationSec: 300,
+        longBreakDurationSec: 900,
+        taskId: taskId ?? 'default-task',
+      };
+      await window.electronAPI.startPomodoro(input);
+      const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+      setPomodoro(current);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const pause = async () => setError('Not implemented');
+  const pause = async () => {
+    if (!pomodoro) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      await window.electronAPI.pausePomodoro();
+      const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+      setPomodoro(current);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const resume = async () => setError('Not implemented');
+  const resume = async () => {
+    if (!pomodoro) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      await window.electronAPI.resumePomodoro();
+      const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+      setPomodoro(current);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const stop = async () => setError('Not implemented');
+  const stop = async () => {
+    if (!pomodoro) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      await window.electronAPI.stopPomodoro();
+      const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+      setPomodoro(current);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return useMemo(
     () => ({ pomodoro, isLoading, error, start, pause, resume, stop }),

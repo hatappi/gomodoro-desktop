@@ -18,6 +18,18 @@ const api = {
     const res = await ipcRenderer.invoke(IPC_CHANNELS.GET_CURRENT_POMODORO);
     return res as any;
   },
+  startPomodoro: async (input: { workDurationSec: number; breakDurationSec: number; longBreakDurationSec: number; taskId: string }) => {
+    return (await ipcRenderer.invoke(IPC_CHANNELS.START_POMODORO, input)) as any;
+  },
+  pausePomodoro: async () => {
+    return (await ipcRenderer.invoke(IPC_CHANNELS.PAUSE_POMODORO)) as any;
+  },
+  resumePomodoro: async () => {
+    return (await ipcRenderer.invoke(IPC_CHANNELS.RESUME_POMODORO)) as any;
+  },
+  stopPomodoro: async () => {
+    return (await ipcRenderer.invoke(IPC_CHANNELS.STOP_POMODORO)) as any;
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', api);
