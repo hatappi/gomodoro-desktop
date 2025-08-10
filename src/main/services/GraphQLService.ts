@@ -1,6 +1,16 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { createClient, Client, ClientOptions } from 'graphql-ws';
+import {
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+  split,
+  NormalizedCacheObject,
+} from '@apollo/client';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { createClient } from 'graphql-ws';
 import WebSocket from 'ws';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 export type GraphQLServiceOptions = {
   httpUrl: string;
@@ -12,12 +22,13 @@ export class GraphQLService {
   private readonly httpUrl: string;
   private readonly wsUrl: string;
   private readonly authToken?: string;
-  private wsClient: Client | null = null;
+  private apollo: ApolloClient<NormalizedCacheObject>;
 
   constructor(options: GraphQLServiceOptions) {
     this.httpUrl = options.httpUrl;
     this.wsUrl = options.wsUrl;
     this.authToken = options.authToken;
+    this.apollo = this.createApolloClient();
   }
 
   public async healthCheck(): Promise<boolean> {
@@ -42,56 +53,62 @@ export class GraphQLService {
     return false;
   }
 
-  private buildHeaders(): Record<string, string> {
-    const headers: Record<string, string> = { 'content-type': 'application/json' };
-    if (this.authToken) headers.authorization = `Bearer ${this.authToken}`;
-    return headers;
-  }
-
-  public async execute<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
-    const res = await fetch(this.httpUrl, {
-      method: 'POST',
-      headers: this.buildHeaders(),
-      body: JSON.stringify({ query, variables: variables ?? {} }),
+  private createApolloClient(): ApolloClient<NormalizedCacheObject> {
+    const httpLink = new HttpLink({
+      uri: this.httpUrl,
+      fetch: (globalThis as any).fetch,
+      headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined,
     });
-    const body = (await res.json()) as { data?: T; errors?: Array<{ message: string }>; };
-    if (!res.ok || body.errors?.length) {
-      const message = body.errors?.map((e) => e.message).join('; ') || `HTTP ${res.status}`;
-      throw new Error(`GraphQL error: ${message}`);
-    }
-    if (!body.data) throw new Error('GraphQL error: empty response');
-    return body.data;
-  }
 
-  private getWsClient(): Client {
-    if (this.wsClient) return this.wsClient;
-    const options: ClientOptions = {
-      url: this.wsUrl.replace(/^http/, 'ws'),
-      webSocketImpl: WebSocket,
-      connectionParams: this.authToken ? { headers: { Authorization: `Bearer ${this.authToken}` } } : undefined,
-      retryAttempts: 3,
-    };
-    this.wsClient = createClient(options);
-    return this.wsClient;
-  }
-
-  public subscribe<T>(query: string, variables: Record<string, unknown>, next: (data: T) => void, error?: (err: unknown) => void): () => void {
-    const client = this.getWsClient();
-    const dispose = client.subscribe<{ data?: T; errors?: Array<{ message: string }> }>(
-      { query, variables },
-      {
-        next: (payload) => {
-          if (payload.errors?.length) {
-            error?.(new Error(payload.errors.map((e) => e.message).join('; ')));
-            return;
-          }
-          if (payload.data) next(payload.data as T);
-        },
-        error: (err) => error?.(err),
-        complete: () => undefined,
-      },
+    const wsLink = new GraphQLWsLink(
+      createClient({
+        url: this.wsUrl.startsWith('ws') ? this.wsUrl : this.wsUrl.replace(/^http/, 'ws'),
+        webSocketImpl: WebSocket,
+        connectionParams: this.authToken ? { headers: { Authorization: `Bearer ${this.authToken}` } } : undefined,
+        retryAttempts: 3,
+      }),
     );
-    return () => dispose();
+
+    const link = split(
+      ({ query }) => {
+        const def = getMainDefinition(query);
+        return def.kind === 'OperationDefinition' && def.operation === 'subscription';
+      },
+      wsLink,
+      httpLink,
+    );
+
+    return new ApolloClient({ link, cache: new InMemoryCache(), connectToDevTools: false });
+  }
+
+  public async query<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
+    document: TypedDocumentNode<TData, TVariables>,
+    variables?: TVariables,
+  ): Promise<TData> {
+    const res = await this.apollo.query({ query: document, variables: variables as any });
+    return res.data;
+  }
+
+  public async mutate<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
+    document: TypedDocumentNode<TData, TVariables>,
+    variables?: TVariables,
+  ): Promise<TData> {
+    const res = await this.apollo.mutate({ mutation: document, variables: variables as any });
+    if (!res.data) throw new Error('Empty mutation response');
+    return res.data;
+  }
+
+  public subscribe<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
+    document: TypedDocumentNode<TData, TVariables>,
+    variables: TVariables,
+    next: (data: TData) => void,
+    error?: (err: unknown) => void,
+  ): () => void {
+    const sub = this.apollo.subscribe({ query: document, variables: variables as any }).subscribe({
+      next: (payload) => next(payload.data as TData),
+      error: (err) => error?.(err),
+    });
+    return () => sub.unsubscribe();
   }
 }
 

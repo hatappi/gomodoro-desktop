@@ -1,0 +1,84 @@
+query CurrentPomodoro {
+  currentPomodoro {
+    id
+    state
+    taskId
+    startTime
+    phase
+    phaseCount
+    remainingTimeSec
+    elapsedTimeSec
+  }
+}
+
+mutation StartPomodoro($input: StartPomodoroInput!) {
+  startPomodoro(input: $input) {
+    id
+    state
+    taskId
+    startTime
+    phase
+    phaseCount
+    remainingTimeSec
+    elapsedTimeSec
+  }
+}
+
+mutation PausePomodoro {
+  pausePomodoro {
+    id
+    state
+    taskId
+    startTime
+    phase
+    phaseCount
+    remainingTimeSec
+    elapsedTimeSec
+  }
+}
+
+mutation ResumePomodoro {
+  resumePomodoro {
+    id
+    state
+    taskId
+    startTime
+    phase
+    phaseCount
+    remainingTimeSec
+    elapsedTimeSec
+  }
+}
+
+mutation StopPomodoro {
+  stopPomodoro {
+    id
+    state
+    taskId
+    startTime
+    phase
+    phaseCount
+    remainingTimeSec
+    elapsedTimeSec
+  }
+}
+
+subscription OnPomodoroEvent($input: EventReceivedInput!) {
+  eventReceived(input: $input) {
+    eventCategory
+    eventType
+    payload {
+      ... on EventPomodoroPayload {
+        id
+        state
+        taskId
+        phase
+        phaseCount
+        remainingTimeSec
+        elapsedTimeSec
+      }
+    }
+  }
+}
+
+

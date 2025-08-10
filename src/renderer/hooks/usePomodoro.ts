@@ -1,18 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-export type PomodoroState = 'ACTIVE' | 'PAUSED' | 'FINISHED';
-export type PomodoroPhase = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
-
-export type Pomodoro = {
-  id: string;
-  state: PomodoroState;
-  taskId: string | null;
-  startTime: string;
-  phase: PomodoroPhase;
-  phaseCount: number;
-  remainingTimeSec: number;
-  elapsedTimeSec: number;
-};
+import { useEffect, useMemo, useState } from 'react';
+import type { Pomodoro } from '../../shared/graphql/generated';
+import { PomodoroState } from '../../shared/graphql/generated';
 
 export type UsePomodoroResult = {
   pomodoro: Pomodoro | null;
@@ -30,7 +18,6 @@ export function usePomodoro(): UsePomodoroResult {
   const [pomodoro, setPomodoro] = useState<Pomodoro | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const timerRef = useRef<number | null>(null);
 
   // Initial fetch current state from main via preload bridge
   useEffect(() => {
