@@ -14,6 +14,10 @@ const api = {
     const res = await ipcRenderer.invoke(IPC_CHANNELS.GET_CONFIG);
     return res as { env: string };
   },
+  getCurrentPomodoro: async (): Promise<any> => {
+    const res = await ipcRenderer.invoke(IPC_CHANNELS.GET_CURRENT_POMODORO);
+    return res as any;
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', api);
