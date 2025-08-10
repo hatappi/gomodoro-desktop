@@ -118,6 +118,41 @@ export default class PomodoroService {
     const data = await this.gql.execute<{ stopPomodoro: Pomodoro }>(query);
     return data.stopPomodoro;
   }
+
+  public subscribePomodoroEvents(
+    onEvent: (p: Pomodoro) => void,
+    onError?: (err: unknown) => void,
+  ): () => void {
+    const query = `
+      subscription OnEvent($input: EventReceivedInput!) {
+        eventReceived(input: $input) {
+          eventCategory
+          eventType
+          payload {
+            ... on EventPomodoroPayload {
+              id
+              state
+              taskId
+              phase
+              phaseCount
+              remainingTimeSec
+              elapsedTimeSec
+            }
+          }
+        }
+      }
+    `;
+    const variables = { input: { eventCategory: ['POMODORO'] } } as const;
+    return this.gql.subscribe<{ eventReceived: { payload: Pomodoro } }>(
+      query,
+      variables as unknown as Record<string, unknown>,
+      (data) => {
+        const p = data.eventReceived?.payload as unknown as Pomodoro;
+        if (p) onEvent(p);
+      },
+      onError,
+    );
+  }
 }
 
 

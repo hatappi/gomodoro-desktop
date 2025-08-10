@@ -6,6 +6,7 @@ export interface ElectronAPI {
   pausePomodoro: () => Promise<unknown>;
   resumePomodoro: () => Promise<unknown>;
   stopPomodoro: () => Promise<unknown>;
+  onPomodoroEvent: (listener: (event: unknown) => void) => () => void;
 }
 
 declare global {

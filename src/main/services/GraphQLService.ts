@@ -1,4 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
+import { createClient, Client, ClientOptions } from 'graphql-ws';
+import WebSocket from 'ws';
 
 export type GraphQLServiceOptions = {
   httpUrl: string;
@@ -10,6 +12,7 @@ export class GraphQLService {
   private readonly httpUrl: string;
   private readonly wsUrl: string;
   private readonly authToken?: string;
+  private wsClient: Client | null = null;
 
   constructor(options: GraphQLServiceOptions) {
     this.httpUrl = options.httpUrl;
@@ -58,6 +61,37 @@ export class GraphQLService {
     }
     if (!body.data) throw new Error('GraphQL error: empty response');
     return body.data;
+  }
+
+  private getWsClient(): Client {
+    if (this.wsClient) return this.wsClient;
+    const options: ClientOptions = {
+      url: this.wsUrl.replace(/^http/, 'ws'),
+      webSocketImpl: WebSocket,
+      connectionParams: this.authToken ? { headers: { Authorization: `Bearer ${this.authToken}` } } : undefined,
+      retryAttempts: 3,
+    };
+    this.wsClient = createClient(options);
+    return this.wsClient;
+  }
+
+  public subscribe<T>(query: string, variables: Record<string, unknown>, next: (data: T) => void, error?: (err: unknown) => void): () => void {
+    const client = this.getWsClient();
+    const dispose = client.subscribe<{ data?: T; errors?: Array<{ message: string }> }>(
+      { query, variables },
+      {
+        next: (payload) => {
+          if (payload.errors?.length) {
+            error?.(new Error(payload.errors.map((e) => e.message).join('; ')));
+            return;
+          }
+          if (payload.data) next(payload.data as T);
+        },
+        error: (err) => error?.(err),
+        complete: () => undefined,
+      },
+    );
+    return () => dispose();
   }
 }
 

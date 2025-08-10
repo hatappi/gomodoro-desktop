@@ -30,6 +30,11 @@ const api = {
   stopPomodoro: async () => {
     return (await ipcRenderer.invoke(IPC_CHANNELS.STOP_POMODORO)) as any;
   },
+  onPomodoroEvent: (listener: (event: unknown) => void) => {
+    const handler = (_: unknown, payload: unknown) => listener(payload);
+    ipcRenderer.on(IPC_CHANNELS.POMODORO_EVENT, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.POMODORO_EVENT, handler);
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', api);
