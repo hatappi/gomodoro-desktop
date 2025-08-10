@@ -35,6 +35,11 @@ export function usePomodoro(): UsePomodoroResult {
   // Initial fetch current state from main via preload bridge
   useEffect(() => {
     let mounted = true;
+    // subscribe to realtime events
+    const off = window.electronAPI.onPomodoroEvent((payload) => {
+      const p = payload as Pomodoro;
+      setPomodoro(p);
+    });
     (async () => {
       try {
         setIsLoading(true);
@@ -48,36 +53,11 @@ export function usePomodoro(): UsePomodoroResult {
     })();
     return () => {
       mounted = false;
+      off();
     };
   }, []);
 
-  // Tick timer when ACTIVE (optimistic local tick based on remainingTimeSec)
-  useEffect(() => {
-    if (timerRef.current) {
-      window.clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    if (pomodoro?.state === 'ACTIVE' && pomodoro.remainingTimeSec > 0) {
-      timerRef.current = window.setInterval(() => {
-        setPomodoro((prev) => {
-          if (!prev) return prev;
-          const remaining = Math.max(0, prev.remainingTimeSec - 1);
-          const elapsed = prev.elapsedTimeSec + 1;
-          const next: Pomodoro = { ...prev, remainingTimeSec: remaining, elapsedTimeSec: elapsed };
-          if (remaining === 0) {
-            next.state = 'FINISHED';
-          }
-          return next;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (timerRef.current) {
-        window.clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [pomodoro?.state, pomodoro?.remainingTimeSec]);
+  // Local ticking is no longer needed once subscription is enabled
 
   const start = async (taskId?: string) => {
     setIsLoading(true);

@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { IPC_CHANNELS } from './channels';
 import { GraphQLService } from '../services/GraphQLService';
 import PomodoroService from '../services/PomodoroService';
@@ -47,6 +47,23 @@ export function registerIpcHandlers(): void {
     const service = new PomodoroService(gql);
     return service.stopPomodoro();
   });
+
+  // Broadcast subscription events to all renderer windows
+  {
+    const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
+    const service = new PomodoroService(gql);
+    service.subscribePomodoroEvents(
+      (p) => {
+        BrowserWindow.getAllWindows().forEach((win) => {
+          win.webContents.send(IPC_CHANNELS.POMODORO_EVENT, p);
+        });
+      },
+      (err) => {
+        // eslint-disable-next-line no-console
+        console.error('Pomodoro subscription error:', err);
+      },
+    );
+  }
 }
 
 

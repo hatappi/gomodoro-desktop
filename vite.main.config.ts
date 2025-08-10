@@ -11,7 +11,7 @@ export default defineConfig({
     outDir: '.vite/build',
     sourcemap: true,
     rollupOptions: {
-      external: ['electron'],
+      external: ['electron', 'bufferutil', 'utf-8-validate'],
     },
   },
 });

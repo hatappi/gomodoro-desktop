@@ -6,6 +6,7 @@ export const IPC_CHANNELS = {
   PAUSE_POMODORO: 'pomodoro:pause',
   RESUME_POMODORO: 'pomodoro:resume',
   STOP_POMODORO: 'pomodoro:stop',
+  POMODORO_EVENT: 'pomodoro:event',
 } as const;
 
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];
