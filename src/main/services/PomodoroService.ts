@@ -1,4 +1,21 @@
 import { GraphQLService } from './GraphQLService';
+import {
+  CurrentPomodoroDocument,
+  type CurrentPomodoroQuery,
+  type CurrentPomodoroQueryVariables,
+  StartPomodoroDocument,
+  type StartPomodoroMutation,
+  type StartPomodoroMutationVariables,
+  PausePomodoroDocument,
+  type PausePomodoroMutation,
+  ResumePomodoroDocument,
+  type ResumePomodoroMutation,
+  StopPomodoroDocument,
+  type StopPomodoroMutation,
+  OnPomodoroEventDocument,
+  type OnPomodoroEventSubscription,
+  type OnPomodoroEventSubscriptionVariables,
+} from '../../shared/graphql/generated';
 
 export type GqlPomodoroState = 'ACTIVE' | 'PAUSED' | 'FINISHED';
 export type GqlPomodoroPhase = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
@@ -25,130 +42,43 @@ export default class PomodoroService {
   constructor(private readonly gql: GraphQLService) {}
 
   public async getCurrentPomodoro(): Promise<Pomodoro | null> {
-    const query = `
-      query CurrentPomodoro {
-        currentPomodoro {
-          id
-          state
-          taskId
-          startTime
-          phase
-          phaseCount
-          remainingTimeSec
-          elapsedTimeSec
-        }
-      }
-    `;
-    const data = await this.gql.execute<{ currentPomodoro: Pomodoro | null }>(query);
-    return data.currentPomodoro ?? null;
+    const data = await this.gql.query<CurrentPomodoroQuery, CurrentPomodoroQueryVariables>(CurrentPomodoroDocument, {} as CurrentPomodoroQueryVariables);
+    return (data.currentPomodoro as unknown as Pomodoro) ?? null;
   }
 
   public async startPomodoro(input: StartPomodoroInput): Promise<Pomodoro> {
-    const query = `
-      mutation StartPomodoro($input: StartPomodoroInput!) {
-        startPomodoro(input: $input) {
-          id
-          state
-          taskId
-          startTime
-          phase
-          phaseCount
-          remainingTimeSec
-          elapsedTimeSec
-        }
-      }
-    `;
-    const data = await this.gql.execute<{ startPomodoro: Pomodoro }>(query, { input });
-    return data.startPomodoro;
+    const data = await this.gql.mutate<StartPomodoroMutation, StartPomodoroMutationVariables>(StartPomodoroDocument, { input });
+    return data.startPomodoro as unknown as Pomodoro;
   }
 
   public async pausePomodoro(): Promise<Pomodoro> {
-    const query = `
-      mutation { 
-        pausePomodoro {
-          id
-          state
-          taskId
-          startTime
-          phase
-          phaseCount
-          remainingTimeSec
-          elapsedTimeSec
-        }
-      }
-    `;
-    const data = await this.gql.execute<{ pausePomodoro: Pomodoro }>(query);
-    return data.pausePomodoro;
+    const data = await this.gql.mutate<PausePomodoroMutation, Record<string, never>>(PausePomodoroDocument, {} as Record<string, never>);
+    return data.pausePomodoro as unknown as Pomodoro;
   }
 
   public async resumePomodoro(): Promise<Pomodoro> {
-    const query = `
-      mutation { 
-        resumePomodoro {
-          id
-          state
-          taskId
-          startTime
-          phase
-          phaseCount
-          remainingTimeSec
-          elapsedTimeSec
-        }
-      }
-    `;
-    const data = await this.gql.execute<{ resumePomodoro: Pomodoro }>(query);
-    return data.resumePomodoro;
+    const data = await this.gql.mutate<ResumePomodoroMutation, Record<string, never>>(ResumePomodoroDocument, {} as Record<string, never>);
+    return data.resumePomodoro as unknown as Pomodoro;
   }
 
   public async stopPomodoro(): Promise<Pomodoro> {
-    const query = `
-      mutation { 
-        stopPomodoro {
-          id
-          state
-          taskId
-          startTime
-          phase
-          phaseCount
-          remainingTimeSec
-          elapsedTimeSec
-        }
-      }
-    `;
-    const data = await this.gql.execute<{ stopPomodoro: Pomodoro }>(query);
-    return data.stopPomodoro;
+    const data = await this.gql.mutate<StopPomodoroMutation, Record<string, never>>(StopPomodoroDocument, {} as Record<string, never>);
+    return data.stopPomodoro as unknown as Pomodoro;
   }
 
   public subscribePomodoroEvents(
     onEvent: (p: Pomodoro) => void,
     onError?: (err: unknown) => void,
   ): () => void {
-    const query = `
-      subscription OnEvent($input: EventReceivedInput!) {
-        eventReceived(input: $input) {
-          eventCategory
-          eventType
-          payload {
-            ... on EventPomodoroPayload {
-              id
-              state
-              taskId
-              phase
-              phaseCount
-              remainingTimeSec
-              elapsedTimeSec
-            }
-          }
-        }
-      }
-    `;
-    const variables = { input: { eventCategory: ['POMODORO'] } } as const;
-    return this.gql.subscribe<{ eventReceived: { payload: Pomodoro } }>(
-      query,
-      variables as unknown as Record<string, unknown>,
+    const variables: OnPomodoroEventSubscriptionVariables = { input: { eventCategory: ['POMODORO' as any] } };
+    return this.gql.subscribe<OnPomodoroEventSubscription, OnPomodoroEventSubscriptionVariables>(
+      OnPomodoroEventDocument,
+      variables,
       (data) => {
-        const p = data.eventReceived?.payload as unknown as Pomodoro;
-        if (p) onEvent(p);
+        const payload = data.eventReceived?.payload as any;
+        if (payload && 'remainingTimeSec' in payload) {
+          onEvent(payload as Pomodoro);
+        }
       },
       onError,
     );
