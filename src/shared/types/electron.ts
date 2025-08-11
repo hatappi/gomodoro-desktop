@@ -1,12 +1,14 @@
+import type { Pomodoro, StartPomodoroParams } from './gomodoro';
+
 export interface ElectronAPI {
   ping: (message?: string) => Promise<string>;
   getConfig: () => Promise<{ env: string }>;
-  getCurrentPomodoro: () => Promise<unknown>;
-  startPomodoro: (input: { workDurationSec: number; breakDurationSec: number; longBreakDurationSec: number; taskId: string }) => Promise<unknown>;
-  pausePomodoro: () => Promise<unknown>;
-  resumePomodoro: () => Promise<unknown>;
-  stopPomodoro: () => Promise<unknown>;
-  onPomodoroEvent: (listener: (event: unknown) => void) => () => void;
+  getCurrentPomodoro: () => Promise<Pomodoro | null>;
+  startPomodoro: (input: StartPomodoroParams) => Promise<Pomodoro>;
+  pausePomodoro: () => Promise<Pomodoro>;
+  resumePomodoro: () => Promise<Pomodoro>;
+  stopPomodoro: () => Promise<Pomodoro>;
+  onPomodoroEvent: (listener: (event: Pomodoro) => void) => () => void;
 }
 
 declare global {

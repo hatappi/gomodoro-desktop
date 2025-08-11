@@ -1,65 +1,40 @@
+fragment PomodoroDetails on Pomodoro {
+  id
+  state
+  taskId
+  phase
+  phaseCount
+  remainingTimeSec
+  elapsedTimeSec
+}
+
 query CurrentPomodoro {
   currentPomodoro {
-    id
-    state
-    taskId
-    startTime
-    phase
-    phaseCount
-    remainingTimeSec
-    elapsedTimeSec
+    ...PomodoroDetails
   }
 }
 
 mutation StartPomodoro($input: StartPomodoroInput!) {
   startPomodoro(input: $input) {
-    id
-    state
-    taskId
-    startTime
-    phase
-    phaseCount
-    remainingTimeSec
-    elapsedTimeSec
+    ...PomodoroDetails
   }
 }
 
 mutation PausePomodoro {
   pausePomodoro {
-    id
-    state
-    taskId
-    startTime
-    phase
-    phaseCount
-    remainingTimeSec
-    elapsedTimeSec
+    ...PomodoroDetails
   }
 }
 
 mutation ResumePomodoro {
   resumePomodoro {
-    id
-    state
-    taskId
-    startTime
-    phase
-    phaseCount
-    remainingTimeSec
-    elapsedTimeSec
+    ...PomodoroDetails
   }
 }
 
 mutation StopPomodoro {
   stopPomodoro {
-    id
-    state
-    taskId
-    startTime
-    phase
-    phaseCount
-    remainingTimeSec
-    elapsedTimeSec
+    ...PomodoroDetails
   }
 }
 

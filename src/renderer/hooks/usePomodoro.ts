@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Pomodoro } from '../../shared/graphql/generated';
-import { PomodoroState } from '../../shared/graphql/generated';
+import type { Pomodoro } from '../../shared/types';
 
 export type UsePomodoroResult = {
   pomodoro: Pomodoro | null;
@@ -12,8 +11,6 @@ export type UsePomodoroResult = {
   stop: () => Promise<void>;
 };
 
-const nowIso = () => new Date().toISOString();
-
 export function usePomodoro(): UsePomodoroResult {
   const [pomodoro, setPomodoro] = useState<Pomodoro | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,13 +21,13 @@ export function usePomodoro(): UsePomodoroResult {
     let mounted = true;
     // subscribe to realtime events
     const off = window.electronAPI.onPomodoroEvent((payload) => {
-      const p = payload as Pomodoro;
-      setPomodoro(p);
+      setPomodoro(payload);
     });
+
     (async () => {
       try {
         setIsLoading(true);
-        const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+        const current = await window.electronAPI.getCurrentPomodoro();
         if (mounted) setPomodoro(current);
       } catch (e) {
         if (mounted) setError((e as Error).message);
@@ -38,13 +35,12 @@ export function usePomodoro(): UsePomodoroResult {
         if (mounted) setIsLoading(false);
       }
     })();
+
     return () => {
       mounted = false;
       off();
     };
   }, []);
-
-  // Local ticking is no longer needed once subscription is enabled
 
   const start = async (taskId?: string) => {
     setIsLoading(true);
@@ -58,7 +54,7 @@ export function usePomodoro(): UsePomodoroResult {
         taskId: taskId ?? 'default-task',
       };
       await window.electronAPI.startPomodoro(input);
-      const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+      const current = await window.electronAPI.getCurrentPomodoro();
       setPomodoro(current);
     } catch (e) {
       setError((e as Error).message);
@@ -73,7 +69,7 @@ export function usePomodoro(): UsePomodoroResult {
     setError(null);
     try {
       await window.electronAPI.pausePomodoro();
-      const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+      const current = await window.electronAPI.getCurrentPomodoro();
       setPomodoro(current);
     } catch (e) {
       setError((e as Error).message);
@@ -88,7 +84,7 @@ export function usePomodoro(): UsePomodoroResult {
     setError(null);
     try {
       await window.electronAPI.resumePomodoro();
-      const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+      const current = await window.electronAPI.getCurrentPomodoro();
       setPomodoro(current);
     } catch (e) {
       setError((e as Error).message);
@@ -103,7 +99,7 @@ export function usePomodoro(): UsePomodoroResult {
     setError(null);
     try {
       await window.electronAPI.stopPomodoro();
-      const current = (await window.electronAPI.getCurrentPomodoro()) as Pomodoro | null;
+      const current = await window.electronAPI.getCurrentPomodoro();
       setPomodoro(current);
     } catch (e) {
       setError((e as Error).message);
