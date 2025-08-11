@@ -16,54 +16,83 @@ import {
   type OnPomodoroEventSubscription,
   type OnPomodoroEventSubscriptionVariables,
 } from '../../shared/graphql/generated';
+import type { Pomodoro, StartPomodoroParams } from '../../shared/types/gomodoro';
 
-export type GqlPomodoroState = 'ACTIVE' | 'PAUSED' | 'FINISHED';
-export type GqlPomodoroPhase = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
-
-export type Pomodoro = {
-  id: string;
-  state: GqlPomodoroState;
-  taskId: string;
-  startTime: string; // RFC3339
-  phase: GqlPomodoroPhase;
-  phaseCount: number;
-  remainingTimeSec: number;
-  elapsedTimeSec: number;
-};
-
-export type StartPomodoroInput = {
-  workDurationSec: number;
-  breakDurationSec: number;
-  longBreakDurationSec: number;
-  taskId: string;
-};
+type StartPomodoroInput = StartPomodoroParams;
 
 export default class PomodoroService {
   constructor(private readonly gql: GraphQLService) {}
 
   public async getCurrentPomodoro(): Promise<Pomodoro | null> {
     const data = await this.gql.query<CurrentPomodoroQuery, CurrentPomodoroQueryVariables>(CurrentPomodoroDocument, {} as CurrentPomodoroQueryVariables);
-    return (data.currentPomodoro as unknown as Pomodoro) ?? null;
+    const p = data.currentPomodoro;
+    return p
+      ? {
+          id: p.id,
+          state: p.state,
+          taskId: p.taskId,
+          phase: p.phase,
+          phaseCount: p.phaseCount,
+          remainingTimeSec: p.remainingTimeSec,
+          elapsedTimeSec: p.elapsedTimeSec,
+        }
+      : null;
   }
 
   public async startPomodoro(input: StartPomodoroInput): Promise<Pomodoro> {
     const data = await this.gql.mutate<StartPomodoroMutation, StartPomodoroMutationVariables>(StartPomodoroDocument, { input });
-    return data.startPomodoro as unknown as Pomodoro;
+    const p = data.startPomodoro!;
+    return {
+      id: p.id,
+      state: p.state,
+      taskId: p.taskId,
+      phase: p.phase,
+      phaseCount: p.phaseCount,
+      remainingTimeSec: p.remainingTimeSec,
+      elapsedTimeSec: p.elapsedTimeSec,
+    };
   }
 
   public async pausePomodoro(): Promise<Pomodoro> {
     const data = await this.gql.mutate<PausePomodoroMutation, Record<string, never>>(PausePomodoroDocument, {} as Record<string, never>);
-    return data.pausePomodoro as unknown as Pomodoro;
+    const p = data.pausePomodoro!;
+    return {
+      id: p.id,
+      state: p.state,
+      taskId: p.taskId,
+      phase: p.phase,
+      phaseCount: p.phaseCount,
+      remainingTimeSec: p.remainingTimeSec,
+      elapsedTimeSec: p.elapsedTimeSec,
+    };
   }
 
   public async resumePomodoro(): Promise<Pomodoro> {
     const data = await this.gql.mutate<ResumePomodoroMutation, Record<string, never>>(ResumePomodoroDocument, {} as Record<string, never>);
-    return data.resumePomodoro as unknown as Pomodoro;
+    const p = data.resumePomodoro!;
+    return {
+      id: p.id,
+      state: p.state,
+      taskId: p.taskId,
+      phase: p.phase,
+      phaseCount: p.phaseCount,
+      remainingTimeSec: p.remainingTimeSec,
+      elapsedTimeSec: p.elapsedTimeSec,
+    };
   }
 
   public async stopPomodoro(): Promise<Pomodoro> {
     const data = await this.gql.mutate<StopPomodoroMutation, Record<string, never>>(StopPomodoroDocument, {} as Record<string, never>);
-    return data.stopPomodoro as unknown as Pomodoro;
+    const p = data.stopPomodoro!;
+    return {
+      id: p.id,
+      state: p.state,
+      taskId: p.taskId,
+      phase: p.phase,
+      phaseCount: p.phaseCount,
+      remainingTimeSec: p.remainingTimeSec,
+      elapsedTimeSec: p.elapsedTimeSec,
+    };
   }
 
   public subscribePomodoroEvents(
@@ -77,7 +106,16 @@ export default class PomodoroService {
       (data) => {
         const payload = data.eventReceived?.payload as any;
         if (payload && 'remainingTimeSec' in payload) {
-          onEvent(payload as Pomodoro);
+          const p = payload as { id: string; state: Pomodoro['state']; taskId?: string | null; phase: Pomodoro['phase']; phaseCount: number; remainingTimeSec: number; elapsedTimeSec: number };
+          onEvent({
+            id: p.id,
+            state: p.state,
+            taskId: p.taskId ?? '',
+            phase: p.phase,
+            phaseCount: p.phaseCount,
+            remainingTimeSec: p.remainingTimeSec,
+            elapsedTimeSec: p.elapsedTimeSec,
+          });
         }
       },
       onError,
