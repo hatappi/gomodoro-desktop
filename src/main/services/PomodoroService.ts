@@ -18,8 +18,6 @@ import {
 } from '../../shared/graphql/generated';
 import type { Pomodoro, StartPomodoroParams } from '../../shared/types/gomodoro';
 
-type StartPomodoroInput = StartPomodoroParams;
-
 export default class PomodoroService {
   constructor(private readonly gql: GraphQLService) {}
 
@@ -39,7 +37,7 @@ export default class PomodoroService {
       : null;
   }
 
-  public async startPomodoro(input: StartPomodoroInput): Promise<Pomodoro> {
+  public async startPomodoro(input: StartPomodoroParams): Promise<Pomodoro> {
     const data = await this.gql.mutate<StartPomodoroMutation, StartPomodoroMutationVariables>(StartPomodoroDocument, { input });
     const p = data.startPomodoro!;
     return {
