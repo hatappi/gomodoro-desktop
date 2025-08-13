@@ -1,6 +1,8 @@
 import { registerIpcHandlers } from '../ipc/handlers';
 import { GraphQLService } from '../services/GraphQLService';
 import { GRAPHQL_HTTP_URL, GRAPHQL_WS_URL } from '../../shared/constants';
+import PomodoroService from '../services/PomodoroService';
+import TrayManager from './TrayManager';
 
 export default class Application {
   public async init(): Promise<void> {
@@ -15,6 +17,11 @@ export default class Application {
     const ok = await gql.testReconnect(2);
     // eslint-disable-next-line no-console
     console.log(`[GraphQL] health: ${ok}`);
+
+    // Initialize services used by Tray
+    const pomodoroService = new PomodoroService(gql);
+    const trayManager = new TrayManager(pomodoroService);
+    trayManager.init();
   }
 }
 
