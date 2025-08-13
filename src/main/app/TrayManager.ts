@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, Tray, nativeImage } from 'electron';
 import PomodoroService from '../services/PomodoroService';
+import NotificationService from '../services/NotificationService';
 import type { Pomodoro } from '../../shared/types/gomodoro';
 import type { PomodoroState } from '../../shared/types/gomodoro';
 import type { PomodoroPhase } from '../../shared/types/gomodoro';
@@ -36,7 +37,8 @@ export default class TrayManager {
 
   constructor(
     private readonly pomodoroService: PomodoroService,
-    private readonly config: PomodoroConfig = DEFAULT_POMODORO_CONFIG
+    private readonly config: PomodoroConfig = DEFAULT_POMODORO_CONFIG,
+    private readonly notificationService: NotificationService | null = null,
   ) {}
 
   public init(): void {
@@ -172,6 +174,8 @@ export default class TrayManager {
   }
 
   private applyPomodoro(pomodoro: Pomodoro | null): void {
+    const prevState = this.currentState;
+
     if (pomodoro) {
       const mm = this.formatTime(pomodoro.remainingTimeSec);
       this.currentStateLabel = `${pomodoro.phase} #${pomodoro.phaseCount} ${mm}`;
@@ -185,6 +189,10 @@ export default class TrayManager {
       this.setTrayTitle('');
     }
     this.setTrayTooltip();
+
+    if (pomodoro && prevState && prevState !== 'FINISHED' && pomodoro.state === 'FINISHED') {
+      this.notificationService?.notifyFinished(pomodoro.state, pomodoro.phase);
+    }
   }
 
   private emojiFor(state: PomodoroState | null, phase: PomodoroPhase | null): string {
