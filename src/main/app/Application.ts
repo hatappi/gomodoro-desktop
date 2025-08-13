@@ -3,6 +3,7 @@ import { GraphQLService } from '../services/GraphQLService';
 import { GRAPHQL_HTTP_URL, GRAPHQL_WS_URL } from '../../shared/constants';
 import PomodoroService from '../services/PomodoroService';
 import TrayManager from './TrayManager';
+import NotificationService from '../services/NotificationService';
 
 export default class Application {
   private gql: GraphQLService | null = null;
@@ -24,7 +25,8 @@ export default class Application {
 
     // Initialize services used by Tray
     this.pomodoroService = new PomodoroService(this.gql);
-    this.trayManager = new TrayManager(this.pomodoroService);
+    const notificationService = new NotificationService();
+    this.trayManager = new TrayManager(this.pomodoroService, undefined, notificationService);
     this.trayManager.init();
   }
 
