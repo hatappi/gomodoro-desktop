@@ -2,6 +2,8 @@ import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import Application from './app/Application';
 
+let application: Application | null = null;
+
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -36,7 +38,7 @@ if (!gotLock) {
 
   app.on('ready', async () => {
     app.dock?.hide();
-    const application = new Application();
+    application = new Application();
     await application.init();
     createWindow();
   });
@@ -46,6 +48,10 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+app.on('before-quit', async () => {
+  await application?.destroy();
 });
 
 
