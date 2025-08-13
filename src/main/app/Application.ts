@@ -29,9 +29,7 @@ export default class Application {
   }
 
   public async destroy(): Promise<void> {
-    if (this.trayManager) {
-      this.trayManager.destroy();
-    }
+    this.trayManager?.destroy();
   }
 }
 

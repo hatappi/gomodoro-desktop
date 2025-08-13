@@ -51,10 +51,7 @@ app.on('activate', () => {
 });
 
 app.on('before-quit', async () => {
-  if (application) {
-    await application.destroy();
-    application = null;
-  }
+  await application?.destroy();
 });
 
 

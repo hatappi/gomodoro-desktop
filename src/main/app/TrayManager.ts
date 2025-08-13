@@ -62,13 +62,8 @@ export default class TrayManager {
   }
 
   public destroy(): void {
-    if (this.eventSubscription) {
-      this.eventSubscription();
-    }
-
-    if (this.tray) {
-      this.tray.destroy();
-    }
+    this.eventSubscription?.();
+    this.tray?.destroy();
   }
 
   private buildMenu(): Menu {
