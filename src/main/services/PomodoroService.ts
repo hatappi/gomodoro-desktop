@@ -31,6 +31,7 @@ export default class PomodoroService {
           taskId: p.taskId,
           phase: p.phase,
           phaseCount: p.phaseCount,
+          phaseDurationSec: p.phaseDurationSec,
           remainingTimeSec: p.remainingTimeSec,
           elapsedTimeSec: p.elapsedTimeSec,
         }
@@ -46,6 +47,7 @@ export default class PomodoroService {
       taskId: p.taskId,
       phase: p.phase,
       phaseCount: p.phaseCount,
+      phaseDurationSec: p.phaseDurationSec,
       remainingTimeSec: p.remainingTimeSec,
       elapsedTimeSec: p.elapsedTimeSec,
     };
@@ -60,6 +62,7 @@ export default class PomodoroService {
       taskId: p.taskId,
       phase: p.phase,
       phaseCount: p.phaseCount,
+      phaseDurationSec: p.phaseDurationSec,
       remainingTimeSec: p.remainingTimeSec,
       elapsedTimeSec: p.elapsedTimeSec,
     };
@@ -74,6 +77,7 @@ export default class PomodoroService {
       taskId: p.taskId,
       phase: p.phase,
       phaseCount: p.phaseCount,
+      phaseDurationSec: p.phaseDurationSec,
       remainingTimeSec: p.remainingTimeSec,
       elapsedTimeSec: p.elapsedTimeSec,
     };
@@ -88,6 +92,7 @@ export default class PomodoroService {
       taskId: p.taskId,
       phase: p.phase,
       phaseCount: p.phaseCount,
+      phaseDurationSec: p.phaseDurationSec,
       remainingTimeSec: p.remainingTimeSec,
       elapsedTimeSec: p.elapsedTimeSec,
     };
@@ -111,6 +116,7 @@ export default class PomodoroService {
             taskId: p.taskId ?? '',
             phase: p.phase,
             phaseCount: p.phaseCount,
+            phaseDurationSec: p.phaseDurationSec,
             remainingTimeSec: p.remainingTimeSec,
             elapsedTimeSec: p.elapsedTimeSec,
           });
