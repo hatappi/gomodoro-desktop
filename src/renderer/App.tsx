@@ -26,7 +26,7 @@ export default function App(): React.ReactElement {
           }}
         >
           <Stack 
-            spacing="2rem"
+            spacing="clamp(1rem, 2vw, 2rem)"
             alignItems="center" 
           >
             <Timer pomodoro={pomodoro} />
