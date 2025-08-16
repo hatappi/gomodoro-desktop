@@ -4,6 +4,7 @@ fragment PomodoroDetails on Pomodoro {
   taskId
   phase
   phaseCount
+  phaseDurationSec
   remainingTimeSec
   elapsedTimeSec
 }
@@ -49,6 +50,7 @@ subscription OnPomodoroEvent($input: EventReceivedInput!) {
         taskId
         phase
         phaseCount
+        phaseDurationSec
         remainingTimeSec
         elapsedTimeSec
       }

@@ -6,8 +6,8 @@ let application: Application | null = null;
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 400,
+    height: 450,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

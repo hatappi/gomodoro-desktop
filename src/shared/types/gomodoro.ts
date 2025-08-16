@@ -7,6 +7,7 @@ export type Pomodoro = {
   taskId: string;
   phase: PomodoroPhase;
   phaseCount: number;
+  phaseDurationSec: number;
   remainingTimeSec: number;
   elapsedTimeSec: number;
 };
