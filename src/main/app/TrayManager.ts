@@ -30,7 +30,7 @@ const EMOJI_MAP = {
 
 export default class TrayManager {
   private tray: Tray | null = null;
-  private currentStateLabel: string = '';
+  private currentStateLabel = '';
   private currentState: PomodoroState | null = null;
   private currentPhase: PomodoroPhase | null = null;
   private eventSubscription: (() => void) | null = null;
