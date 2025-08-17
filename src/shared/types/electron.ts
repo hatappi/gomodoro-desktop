@@ -1,5 +1,15 @@
 import type { Pomodoro, StartPomodoroParams } from './gomodoro';
 
+export type IpcResponse<T = unknown> = {
+  success: boolean;
+  data?: T;
+  error?: {
+    message: string;
+    code?: string;
+    stack?: string;
+  };
+};
+
 export interface ElectronAPI {
   ping: (message?: string) => Promise<string>;
   getConfig: () => Promise<{ env: string }>;
