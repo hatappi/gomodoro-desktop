@@ -14,6 +14,7 @@ import {
   PlayArrow as PlayIcon,
   Pause as PauseIcon,
   Stop as StopIcon,
+  SwapHoriz as ChangeTaskIcon,
 } from '@mui/icons-material';
 
 type ControlAction = {
@@ -30,14 +31,16 @@ type Props = {
   canPause: boolean;
   canResume: boolean;
   canStop: boolean;
+  isFinished: boolean;
   onStart: () => void;
   onPause: () => void;
   onResume: () => void;
   onStop: () => void;
+  onChangeTask: () => void;
 };
 
 export default function Controls(props: Props): React.ReactElement {
-  const { isLoading, canStart, canPause, canResume, canStop, onStart, onPause, onResume, onStop } = props;
+  const { isLoading, canStart, canPause, canResume, canStop, isFinished, onStart, onPause, onResume, onStop, onChangeTask } = props;
 
   // Main action button (Start/Pause/Resume)
   const primaryAction: ControlAction | null = (() => {
@@ -112,34 +115,66 @@ export default function Controls(props: Props): React.ReactElement {
             {primaryAction.label}
           </Button>
         )}
+        
+        {isFinished && (
+          <Tooltip title="Change Task" arrow>
+            <span>
+              <IconButton
+                disabled={isLoading}
+                onClick={onChangeTask}
+                sx={{
+                  height: 'clamp(40px, 8vw, 64px)',
+                  width: 'clamp(40px, 8vw, 64px)',
+                  borderRadius: 6,
+                  backgroundColor: (theme) => lighten(theme.palette.info.main, 0.1),
+                  border: (theme) => `2px solid ${theme.palette.info.main}33`,
+                  '&:hover': {
+                    backgroundColor: (theme) => darken(theme.palette.info.main, 0.1),
+                    borderColor: (theme) => `${theme.palette.info.main}66`,
+                    transform: 'translateY(-1px)',
+                  },
+                  '&:disabled': {
+                    borderColor: 'rgba(255, 255, 255, 0.12)',
+                    backgroundColor: 'transparent',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                <ChangeTaskIcon sx={{ fontSize: 'clamp(1.2rem, 4vw, 2.5rem)' }} />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
 
-        <Tooltip title="Stop Timer" arrow>
-          <span>
-            <IconButton
-              disabled={isLoading || !canStop}
-              onClick={onStop}
-              sx={{
-                height: 'clamp(40px, 8vw, 64px)',
-                width: 'clamp(40px, 8vw, 64px)',
-                borderRadius: 6,
-                backgroundColor: (theme) => lighten(theme.palette.error.main, 0.1),
-                border: (theme) => `2px solid ${theme.palette.error.main}33`,
-                '&:hover': {
-                  backgroundColor: (theme) => darken(theme.palette.error.main, 0.1),
-                  borderColor: (theme) => `${theme.palette.error.main}66`,
-                  transform: 'translateY(-1px)',
-                },
-                '&:disabled': {
-                  borderColor: 'rgba(255, 255, 255, 0.12)',
-                  backgroundColor: 'transparent',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-            >
-              <StopIcon sx={{ fontSize: 'clamp(1.2rem, 4vw, 2.5rem)' }} />
-            </IconButton>
-          </span>
-        </Tooltip>
+        {(!isFinished) && (
+          <Tooltip title="Stop Timer" arrow>
+            <span>
+              <IconButton
+                disabled={isLoading || !canStop}
+                onClick={onStop}
+                sx={{
+                  height: 'clamp(40px, 8vw, 64px)',
+                  width: 'clamp(40px, 8vw, 64px)',
+                  borderRadius: 6,
+                  backgroundColor: (theme) => lighten(theme.palette.error.main, 0.1),
+                  border: (theme) => `2px solid ${theme.palette.error.main}33`,
+                  '&:hover': {
+                    backgroundColor: (theme) => darken(theme.palette.error.main, 0.1),
+                    borderColor: (theme) => `${theme.palette.error.main}66`,
+                    transform: 'translateY(-1px)',
+                  },
+                  '&:disabled': {
+                    borderColor: 'rgba(255, 255, 255, 0.12)',
+                    backgroundColor: 'transparent',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                <StopIcon sx={{ fontSize: 'clamp(1.2rem, 4vw, 2.5rem)' }} />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
       </Stack>
     </Box>
   );

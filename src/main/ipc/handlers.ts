@@ -88,6 +88,39 @@ export function registerIpcHandlers(): void {
     });
   });
 
+  // Task management handlers
+  ipcMain.handle(IPC_CHANNELS.LIST_TASKS, async () => {
+    return withIpcErrorHandling(async () => {
+      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
+      const service = new PomodoroService(gql);
+      return service.listTasks();
+    });
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CREATE_TASK, async (_e, input: { title: string }) => {
+    return withIpcErrorHandling(async () => {
+      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
+      const service = new PomodoroService(gql);
+      return service.createTask(input);
+    });
+  });
+
+  ipcMain.handle(IPC_CHANNELS.UPDATE_TASK, async (_e, input: { taskId: string; title: string }) => {
+    return withIpcErrorHandling(async () => {
+      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
+      const service = new PomodoroService(gql);
+      return service.updateTask({ id: input.taskId, title: input.title });
+    });
+  });
+
+  ipcMain.handle(IPC_CHANNELS.DELETE_TASK, async (_e, input: { taskId: string }) => {
+    return withIpcErrorHandling(async () => {
+      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
+      const service = new PomodoroService(gql);
+      return service.deleteTask(input.taskId);
+    });
+  });
+
   // Broadcast subscription events to all renderer windows
   {
     const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });

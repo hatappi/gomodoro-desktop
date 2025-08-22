@@ -12,6 +12,12 @@ export type Pomodoro = {
   elapsedTimeSec: number;
 };
 
+export type Task = {
+  id: string;
+  title: string;
+  createdAt: string;
+};
+
 export type StartPomodoroParams = {
   workDurationSec: number;
   breakDurationSec: number;

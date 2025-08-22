@@ -1,4 +1,4 @@
-import type { Pomodoro, StartPomodoroParams } from './gomodoro';
+import type { Pomodoro, StartPomodoroParams, Task } from './gomodoro';
 
 export type IpcResponse<T = unknown> = {
   success: boolean;
@@ -19,6 +19,11 @@ export interface ElectronAPI {
   resumePomodoro: () => Promise<Pomodoro>;
   stopPomodoro: () => Promise<Pomodoro>;
   onPomodoroEvent: (listener: (event: Pomodoro) => void) => () => void;
+  // Task management
+  listTasks: () => Promise<Task[]>;
+  createTask: (input: { title: string }) => Promise<Task>;
+  updateTask: (input: { taskId: string; title: string }) => Promise<Task>;
+  deleteTask: (input: { taskId: string }) => Promise<boolean>;
 }
 
 declare global {
