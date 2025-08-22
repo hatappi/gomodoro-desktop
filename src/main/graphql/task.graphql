@@ -1,0 +1,46 @@
+fragment TaskDetails on Task {
+  id
+  title
+  createdAt
+}
+
+query Tasks {
+  tasks {
+    edges {
+      cursor
+      node {
+        ...TaskDetails
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
+
+query Task($id: ID!) {
+  task(id: $id) {
+    ...TaskDetails
+  }
+}
+
+mutation CreateTask($input: CreateTaskInput!) {
+  createTask(input: $input) {
+    ...TaskDetails
+  }
+}
+
+mutation UpdateTask($input: UpdateTaskInput!) {
+  updateTask(input: $input) {
+    ...TaskDetails
+  }
+}
+
+mutation DeleteTask($id: ID!) {
+  deleteTask(id: $id)
+}
+

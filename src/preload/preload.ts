@@ -2,7 +2,7 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC_CHANNELS } from '../main/ipc/channels';
-import { Pomodoro, StartPomodoroParams } from '../shared/types/gomodoro';
+import { Pomodoro, StartPomodoroParams, Task } from '../shared/types/gomodoro';
 import type { IpcResponse } from '../shared/types/electron';
 
 function handleIpcResponse<T>(response: IpcResponse<T>): T {
@@ -35,6 +35,11 @@ const api = {
     ipcRenderer.on(IPC_CHANNELS.POMODORO_EVENT, handler);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.POMODORO_EVENT, handler);
   },
+  // Task management
+  listTasks: () => invokeIpc<Task[]>(IPC_CHANNELS.LIST_TASKS),
+  createTask: (input: { title: string }) => invokeIpc<Task>(IPC_CHANNELS.CREATE_TASK, input),
+  updateTask: (input: { taskId: string; title: string }) => invokeIpc<Task>(IPC_CHANNELS.UPDATE_TASK, input),
+  deleteTask: (input: { taskId: string }) => invokeIpc<boolean>(IPC_CHANNELS.DELETE_TASK, input),
 };
 
 contextBridge.exposeInMainWorld('electronAPI', api);

@@ -15,8 +15,20 @@ import {
   OnPomodoroEventDocument,
   type OnPomodoroEventSubscription,
   type OnPomodoroEventSubscriptionVariables,
+  TasksDocument,
+  type TasksQuery,
+  type TasksQueryVariables,
+  CreateTaskDocument,
+  type CreateTaskMutation,
+  type CreateTaskMutationVariables,
+  UpdateTaskDocument,
+  type UpdateTaskMutation,
+  type UpdateTaskMutationVariables,
+  DeleteTaskDocument,
+  type DeleteTaskMutation,
+  type DeleteTaskMutationVariables,
 } from '../../shared/graphql/generated';
-import type { Pomodoro, StartPomodoroParams } from '../../shared/types/gomodoro';
+import type { Pomodoro, StartPomodoroParams, Task } from '../../shared/types/gomodoro';
 
 export default class PomodoroService {
   constructor(private readonly gql: GraphQLService) {}
@@ -109,7 +121,7 @@ export default class PomodoroService {
       (data) => {
         const payload = data.eventReceived?.payload as any;
         if (payload && 'remainingTimeSec' in payload) {
-          const p = payload as { id: string; state: Pomodoro['state']; taskId?: string | null; phase: Pomodoro['phase']; phaseCount: number; remainingTimeSec: number; elapsedTimeSec: number };
+          const p = payload as { id: string; state: Pomodoro['state']; taskId?: string | null; phase: Pomodoro['phase']; phaseCount: number; phaseDurationSec: number; remainingTimeSec: number; elapsedTimeSec: number };
           onEvent({
             id: p.id,
             state: p.state,
@@ -125,6 +137,53 @@ export default class PomodoroService {
       onError,
     );
   }
+
+  // Task management methods
+  public async listTasks(): Promise<Task[]> {
+    const data = await this.gql.query<TasksQuery, TasksQueryVariables>(TasksDocument, {});
+    
+    // Note: GraphQL schema doesn't support pagination parameters, so we get all available tasks
+    // If pagination is needed in the future, the server-side schema would need to be updated
+    const tasks = data.tasks?.edges?.filter((edge): edge is NonNullable<typeof edge> => edge !== null).map(edge => edge.node).filter((node): node is Task => node !== null) || [];
+    
+    return tasks.map(task => ({
+      id: task.id,
+      title: task.title,
+      createdAt: task.createdAt,
+    }));
+  }
+
+  public async createTask(input: { title: string }): Promise<Task> {
+    const data = await this.gql.mutate<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument, {
+      input: { title: input.title }
+    });
+    const task = data.createTask!;
+    return {
+      id: task.id,
+      title: task.title,
+      createdAt: task.createdAt,
+    };
+  }
+
+  public async updateTask(input: { id: string; title: string }): Promise<Task> {
+    const data = await this.gql.mutate<UpdateTaskMutation, UpdateTaskMutationVariables>(UpdateTaskDocument, {
+      input: { id: input.id, title: input.title }
+    });
+    const task = data.updateTask!;
+    return {
+      id: task.id,
+      title: task.title,
+      createdAt: task.createdAt,
+    };
+  }
+
+  public async deleteTask(taskId: string): Promise<boolean> {
+    const data = await this.gql.mutate<DeleteTaskMutation, DeleteTaskMutationVariables>(DeleteTaskDocument, {
+      id: taskId
+    });
+    return data.deleteTask || false;
+  }
+
 }
 
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Pomodoro } from '../../shared/types';
+import type { Pomodoro } from '../../shared/types/gomodoro';
 
 export type UsePomodoroResult = {
   pomodoro: Pomodoro | null;
@@ -13,7 +13,7 @@ export type UsePomodoroResult = {
 
 export function usePomodoro(): UsePomodoroResult {
   const [pomodoro, setPomodoro] = useState<Pomodoro | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Initial fetch current state from main via preload bridge
