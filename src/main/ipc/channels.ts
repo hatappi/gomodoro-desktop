@@ -1,6 +1,7 @@
 export const IPC_CHANNELS = {
   PING: 'app:ping',
   GET_CONFIG: 'app:get-config',
+  CHECK_GRAPHQL_CONNECTION: 'app:check-graphql-connection',
   GET_CURRENT_POMODORO: 'pomodoro:get-current',
   START_POMODORO: 'pomodoro:start',
   PAUSE_POMODORO: 'pomodoro:pause',

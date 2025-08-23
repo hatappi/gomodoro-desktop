@@ -25,6 +25,7 @@ const api = {
     return String(result);
   },
   getConfig: () => invokeIpc<{ env: string }>(IPC_CHANNELS.GET_CONFIG),
+  checkGraphQLConnection: () => invokeIpc<{ isConnected: boolean }>(IPC_CHANNELS.CHECK_GRAPHQL_CONNECTION),
   getCurrentPomodoro: () => invokeIpc<Pomodoro | null>(IPC_CHANNELS.GET_CURRENT_POMODORO),
   startPomodoro: (input: StartPomodoroParams) => invokeIpc<Pomodoro>(IPC_CHANNELS.START_POMODORO, input),
   pausePomodoro: () => invokeIpc<Pomodoro>(IPC_CHANNELS.PAUSE_POMODORO),
