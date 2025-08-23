@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ThemeProvider, CssBaseline, Container, Stack, Box, Fade } from '@mui/material';
+import { ThemeProvider, CssBaseline, Container, Stack, Box, Fade, Alert } from '@mui/material';
 import { theme } from './styles/theme';
 import Layout from './components/Layout/Layout';
 import Timer from './components/Timer/Timer';
@@ -9,11 +9,12 @@ import { usePomodoro } from './hooks/usePomodoro';
 import { useTasks } from './hooks/useTasks';
 
 export default function App(): React.ReactElement {
-  const { pomodoro, isLoading, start, pause, resume, stop } = usePomodoro();
+  const { pomodoro, isLoading, error: pomodoroError, start, pause, resume, stop } = usePomodoro();
   const { 
     tasks, 
     selectedTaskId, 
     loading: tasksLoading, 
+    error: tasksError,
     selectTask, 
     createTask, 
     updateTask,
@@ -70,6 +71,17 @@ export default function App(): React.ReactElement {
           <Stack 
             sx={{ width: '100%', maxWidth: '600px' }}
           >
+            {pomodoroError && pomodoroError !== 'no current pomodoro' && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                Pomodoro Error: {pomodoroError}
+              </Alert>
+            )}
+            {tasksError && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                Tasks Error: {tasksError}
+              </Alert>
+            )}
+            
             <Fade in={showTaskManager} timeout={300} unmountOnExit>
               <Box sx={{ width: '100%' }}>
                 <TaskManager

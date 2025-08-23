@@ -48,6 +48,15 @@ export function registerIpcHandlers(): void {
     }));
   });
 
+  // GraphQL connection check
+  ipcMain.handle(IPC_CHANNELS.CHECK_GRAPHQL_CONNECTION, async () => {
+    return withIpcErrorHandling(async () => {
+      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
+      const isConnected = await gql.testReconnect(2);
+      return { isConnected };
+    });
+  });
+
   ipcMain.handle(IPC_CHANNELS.GET_CURRENT_POMODORO, async () => {
     return withIpcErrorHandling(async () => {
       const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
