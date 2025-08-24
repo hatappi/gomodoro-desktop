@@ -72,6 +72,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: version-update
+          path: |
+            package.json
+            package-lock.json
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -89,7 +92,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-darwin-${{ matrix.arch }}
-          path: out/make/**/*
+          path: out/**/*
 
   release:
     name: Create Release
@@ -102,12 +105,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: version-update
+          path: |
+            package.json
+            package-lock.json
 
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: build-*
-          path: out/make/
+          path: out
           merge-multiple: true
       
       - name: Setup Node.js
