@@ -46,6 +46,18 @@ const config: ForgeConfig = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      platforms: ['darwin'],
+      config: {
+        repository: {
+          owner: 'hatappi',
+          name: 'gomodoro-desktop'
+        },
+      }
+    }
+  ],
 };
 
 export default config;
