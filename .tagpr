@@ -3,3 +3,5 @@
 	releaseBranch = main
 	versionFile = package.json
     changelog = false
+    # Since default GITHUB_TOKEN will not trigger the published event, manually release it.
+    release = draft
