@@ -1,17 +1,8 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version_type:
-        description: 'Version bump type'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-        - patch
-        - minor
-        - major
+  release:
+    types: [published]
 
 permissions:
   # To add the built application to the release, we need to write to the contents permission.
@@ -20,63 +11,14 @@ permissions:
   id-token: write
 
 jobs:
-  version:
-    name: Version Bump
-    runs-on: ubuntu-latest
-    outputs:
-      new_version: ${{ steps.version.outputs.new_version }}
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: 'package.json'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Setup Git
-        run: |
-          git config --global user.name "${GITHUB_USER}"
-          git config --global user.email "${GITHUB_USER}@users.noreply.github.com"
-        env:
-          GITHUB_USER: github-actions[bot]
-      
-      - name: Bump version
-        id: version
-        run: |
-          npm version ${{ github.event.inputs.version_type }}
-          echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Push version changes
-        run: |
-          git push origin main
-          git push --tags
-          
-      - name: Upload version artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: version-update
-          path: |
-            package.json
-            package-lock.json
-
   build-darwin:
     name: Build for macOS
-    needs: version
     runs-on: macos-latest
     strategy:
       matrix:
         arch: [x64, arm64]
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Download version artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: version-update
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -98,15 +40,10 @@ jobs:
 
   release:
     name: Create Release
-    needs: [version, build-darwin]
+    needs: [build-darwin]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Download version artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: version-update
 
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
@@ -123,19 +60,6 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
-
-      - name: Setup Git
-        run: |
-          git config --global user.name "${GITHUB_USER}"
-          git config --global user.email "${GITHUB_USER}@users.noreply.github.com"
-        env:
-          GITHUB_USER: github-actions[bot]
-      
-      - name: Create GitHub Release
-        run: |
-          gh release create v${{ needs.version.outputs.new_version }} --generate-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Publish to GitHub Releases
         run: npm run publish -- --from-dry-run
