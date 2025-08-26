@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import Application from './app/Application';
+import { updateElectronApp } from 'update-electron-app'
 
 let application: Application | null = null;
 
@@ -41,6 +42,8 @@ if (!gotLock) {
     application = new Application();
     await application.init();
     createWindow();
+
+    updateElectronApp();
   });
 }
 
