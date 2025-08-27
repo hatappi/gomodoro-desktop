@@ -100,7 +100,7 @@ export default function App(): React.ReactElement {
 
             <Fade in={!showTaskManager} timeout={300} unmountOnExit>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                <Timer pomodoro={pomodoro} />
+                <Timer pomodoro={pomodoro} tasks={tasks} />
                 
                 <Controls
                   isLoading={isLoading}
