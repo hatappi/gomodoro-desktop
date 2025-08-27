@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import Application from './app/Application';
 import { updateElectronApp } from 'update-electron-app'
 
@@ -19,7 +20,7 @@ const createWindow = () => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    mainWindow.loadURL(pathToFileURL(path.join(__dirname, '../renderer/index.html')).href);
   }
 
   mainWindow.webContents.openDevTools();
