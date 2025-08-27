@@ -11,7 +11,7 @@ import {
   Work as WorkIcon,
   Coffee as BreakIcon,
 } from '@mui/icons-material';
-import type { Pomodoro, PomodoroPhase } from '../../../shared/types/gomodoro';
+import type { Pomodoro, PomodoroPhase, Task } from '../../../shared/types/gomodoro';
 
 type PhaseConfig = {
   icon: React.ReactElement;
@@ -21,6 +21,7 @@ type PhaseConfig = {
 
 type Props = {
   pomodoro: Pomodoro | null;
+  tasks: Task[];
 };
 
 const PHASE_CONFIG: Record<PomodoroPhase, PhaseConfig> = {
@@ -59,7 +60,7 @@ const getPhaseConfig = (phase: string): PhaseConfig => {
   };
 };
 
-export default function Timer({ pomodoro }: Props): React.ReactElement {
+export default function Timer({ pomodoro, tasks }: Props): React.ReactElement {
   if (!pomodoro) {
     return (
       <Box 
@@ -79,6 +80,7 @@ export default function Timer({ pomodoro }: Props): React.ReactElement {
   }
 
   const phaseConfig = getPhaseConfig(pomodoro.phase);
+  const currentTask = tasks.find(task => task.id === pomodoro.taskId);
   
   return (
     <Box>
@@ -132,6 +134,19 @@ export default function Timer({ pomodoro }: Props): React.ReactElement {
               </Typography>
             </Box>
           </Box>
+
+          {/* Task name */}
+          {currentTask && (
+            <Typography 
+              variant="h6" 
+              color="text.primary"
+              sx={{
+                fontSize: 'clamp(1rem, 3vw, 1.5rem)',
+              }}
+            >
+              {currentTask.title}
+            </Typography>
+          )}
 
           {/* Status indicator */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
