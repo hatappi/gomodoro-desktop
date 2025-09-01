@@ -32,6 +32,10 @@ jobs:
       - name: Add macOS certificate
         run: |
           ./scripts/add-macos-cert.sh
+        env:
+          # For Code Signing
+          MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
 
       - name: Generate App Store Connect API key file
         run: |
@@ -40,9 +44,6 @@ jobs:
       - name: Build for ${{ matrix.arch }}
         run: npm run publish -- --dry-run --platform=darwin --arch=${{ matrix.arch }}
         env:
-          # For Code Signing
-          MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
-          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
           # For Notarization
           APPLE_API_KEY: appstore-connect-api-key.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
