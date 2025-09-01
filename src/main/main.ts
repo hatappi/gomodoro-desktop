@@ -2,6 +2,9 @@ import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import Application from './app/Application';
 import { updateElectronApp } from 'update-electron-app'
+import log from 'electron-log'
+
+log.initialize();
 
 let application: Application | null = null;
 

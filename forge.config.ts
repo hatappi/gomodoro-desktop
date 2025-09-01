@@ -7,6 +7,12 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    osxSign: {},
+    osxNotarize: {
+      appleApiKey: process.env.APPLE_API_KEY!,
+      appleApiKeyId: process.env.APPLE_API_KEY_ID!,
+      appleApiIssuer: process.env.APPLE_API_ISSUER!
+    }
   },
   rebuildConfig: {},
   makers: [new MakerZIP({}, ['darwin'])],
