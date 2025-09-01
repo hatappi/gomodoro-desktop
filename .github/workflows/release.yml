@@ -28,9 +28,25 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
+
+      - name: Add macOS certificate
+        run: |
+          ./scripts/add-macos-cert.sh
+
+      - name: Generate App Store Connect API key file
+        run: |
+          echo "${{ secrets.APPLE_API_KEY_BASE64 }}" | base64 -d > appstore-connect-api-key.p8
       
       - name: Build for ${{ matrix.arch }}
         run: npm run publish -- --dry-run --platform=darwin --arch=${{ matrix.arch }}
+        env:
+          # For Code Signing
+          MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          # For Notarization
+          APPLE_API_KEY: appstore-connect-api-key.p8
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
