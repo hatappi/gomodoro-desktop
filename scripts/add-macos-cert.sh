@@ -19,8 +19,5 @@ security unlock-keychain -p actions $KEY_CHAIN
 security import $MACOS_CERT_P12_FILE -k $KEY_CHAIN -P "$MACOS_CERT_PASSWORD" -T /usr/bin/codesign;
 # Set the partition list
 security set-key-partition-list -S apple-tool:,apple: -s -k actions $KEY_CHAIN
-
-# Debugging to show the certificate
-security find-identity
 # Remove certs
 rm -fr *.p12
