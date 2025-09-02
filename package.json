@@ -1,6 +1,6 @@
 {
   "name": "gomodoro-desktop",
-  "productName": "gomodoro-desktop",
+  "productName": "Gomodoro",
   "version": "0.0.11",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
