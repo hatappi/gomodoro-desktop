@@ -1,9 +1,6 @@
 #! /bin/bash
 
-set -eo pipefail
-
-${MACOS_CERT_P12_BASE64:?MACOS_CERT_P12_BASE64 is not set}
-${MACOS_CERT_PASSWORD:?MACOS_CERT_PASSWORD is not set}
+set -ueo pipefail
 
 MACOS_CERT_P12_FILE=certificate.p12
 echo -n "$MACOS_CERT_P12_BASE64" | base64 -d > "$MACOS_CERT_P12_FILE"
