@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import Application from './app/Application';
-import { updateElectronApp } from 'update-electron-app'
+import { updateElectronApp, UpdateSourceType } from 'update-electron-app'
 import log from 'electron-log'
 
 log.initialize();
@@ -46,7 +46,13 @@ if (!gotLock) {
     await application.init();
     createWindow();
 
-    updateElectronApp();
+    updateElectronApp({
+      updateSource: {
+        type: UpdateSourceType.ElectronPublicUpdateService,
+        repo: 'hatappi/gomodoro-desktop',
+      },
+      logger: log,
+    });
   });
 }
 
