@@ -5,6 +5,7 @@ import PomodoroService from '../services/PomodoroService';
 import TrayManager from './TrayManager';
 import NotificationService from '../services/NotificationService';
 import { spawn, ChildProcess } from 'child_process';
+import log from 'electron-log/main'
 
 export default class Application {
   private gql: GraphQLService | null = null;
@@ -13,10 +14,7 @@ export default class Application {
   private gomodoroCLIProcess: ChildProcess | null = null;
 
   public async init(): Promise<void> {
-    // Minimal initialization (Tray, IPC, Services will be added later)
-    // Startup log only for now
-    // eslint-disable-next-line no-console
-    console.log('[Application] init');
+    log.info('[Application] init');
     registerIpcHandlers();
 
     // Initialize GraphQL service and run a connection check
@@ -31,21 +29,17 @@ export default class Application {
         });
 
         this.gomodoroCLIProcess.on('error', (error) => {
-          // eslint-disable-next-line no-console
-          console.error('[Application] Failed to start gomodoro server:', error);
+          log.error('[Application] Failed to start gomodoro server:', error);
         });
 
         this.gomodoroCLIProcess.on('exit', (code) => {
-          // eslint-disable-next-line no-console
-          console.log(`[Application] gomodoro server exited with code ${code}`);
+          log.info(`[Application] gomodoro server exited with code ${code}`);
           this.gomodoroCLIProcess = null;
         });
 
-        // eslint-disable-next-line no-console
-        console.log('[Application] gomodoro server started');
+        log.info('[Application] gomodoro server started');
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('[Application] Error starting gomodoro server:', error);
+        log.error('[Application] Error starting gomodoro server:', error);
       }
     }
 
@@ -61,13 +55,11 @@ export default class Application {
     
     if (this.gomodoroCLIProcess) {
       try {
-        // eslint-disable-next-line no-console
-        console.log('[Application] Stopping gomodoro server...');
+        log.info('[Application] Stopping gomodoro server...');
         this.gomodoroCLIProcess.kill();
         this.gomodoroCLIProcess = null;
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('[Application] Error stopping gomodoro server:', error);
+        log.error('[Application] Error stopping gomodoro server:', error);
       }
     }
   }
