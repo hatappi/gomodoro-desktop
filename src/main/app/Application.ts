@@ -23,7 +23,7 @@ export default class Application {
     const ok = await this.gql.testReconnect(2);
     if (!ok) {
       try {
-        this.gomodoroCLIProcess = spawn('gomodoro', ['serve'], {
+        this.gomodoroCLIProcess = spawn('/usr/local/bin/gomodoro', ['serve'], {
           detached: false,
           stdio: 'pipe'
         });
