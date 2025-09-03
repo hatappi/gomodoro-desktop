@@ -2,7 +2,7 @@ import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import Application from './app/Application';
 import { updateElectronApp, UpdateSourceType } from 'update-electron-app'
-import log from 'electron-log'
+import log from 'electron-log/main'
 
 log.initialize();
 
