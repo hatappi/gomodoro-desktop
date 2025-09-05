@@ -2,7 +2,6 @@ import { BrowserWindow, ipcMain } from 'electron';
 import { IPC_CHANNELS } from './channels';
 import { GraphQLService } from '../services/GraphQLService';
 import PomodoroService from '../services/PomodoroService';
-import { GRAPHQL_HTTP_URL, GRAPHQL_WS_URL } from '../../shared/constants';
 import type { IpcResponse } from '../../shared/types/electron';
 
 function handleIpcError(error: unknown): IpcResponse {
@@ -35,7 +34,7 @@ async function withIpcErrorHandling<T>(handler: () => Promise<T>): Promise<IpcRe
   }
 }
 
-export function registerIpcHandlers(): void {
+export function registerIpcHandlers(gql: GraphQLService): void {
   // Simple ping handler to validate the wiring end-to-end
   ipcMain.handle(IPC_CHANNELS.PING, async (_event, message?: string) => {
     return withIpcErrorHandling(async () => `pong:${message ?? ''}`);
@@ -51,101 +50,80 @@ export function registerIpcHandlers(): void {
   // GraphQL connection check
   ipcMain.handle(IPC_CHANNELS.CHECK_GRAPHQL_CONNECTION, async () => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
       const isConnected = await gql.testReconnect(2);
       return { isConnected };
     });
   });
 
+  const pomodoroService = new PomodoroService(gql);
+
   ipcMain.handle(IPC_CHANNELS.GET_CURRENT_POMODORO, async () => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.getCurrentPomodoro();
+      return pomodoroService.getCurrentPomodoro();
     });
   });
 
   ipcMain.handle(IPC_CHANNELS.START_POMODORO, async (_e, input: { workDurationSec: number; breakDurationSec: number; longBreakDurationSec: number; taskId: string }) => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.startPomodoro(input);
+      return pomodoroService.startPomodoro(input);
     });
   });
 
   ipcMain.handle(IPC_CHANNELS.PAUSE_POMODORO, async () => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.pausePomodoro();
+      return pomodoroService.pausePomodoro();
     });
   });
 
   ipcMain.handle(IPC_CHANNELS.RESUME_POMODORO, async () => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.resumePomodoro();
+      return pomodoroService.resumePomodoro();
     });
   });
 
   ipcMain.handle(IPC_CHANNELS.STOP_POMODORO, async () => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.stopPomodoro();
+      return pomodoroService.stopPomodoro();
     });
   });
 
   // Task management handlers
   ipcMain.handle(IPC_CHANNELS.LIST_TASKS, async () => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.listTasks();
+      return pomodoroService.listTasks();
     });
   });
 
   ipcMain.handle(IPC_CHANNELS.CREATE_TASK, async (_e, input: { title: string }) => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.createTask(input);
+      return pomodoroService.createTask(input);
     });
   });
 
   ipcMain.handle(IPC_CHANNELS.UPDATE_TASK, async (_e, input: { taskId: string; title: string }) => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.updateTask({ id: input.taskId, title: input.title });
+      return pomodoroService.updateTask({ id: input.taskId, title: input.title });
     });
   });
 
   ipcMain.handle(IPC_CHANNELS.DELETE_TASK, async (_e, input: { taskId: string }) => {
     return withIpcErrorHandling(async () => {
-      const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-      const service = new PomodoroService(gql);
-      return service.deleteTask(input.taskId);
+      return pomodoroService.deleteTask(input.taskId);
     });
   });
 
   // Broadcast subscription events to all renderer windows
-  {
-    const gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
-    const service = new PomodoroService(gql);
-    service.subscribePomodoroEvents(
-      (p) => {
-        BrowserWindow.getAllWindows().forEach((win) => {
-          win.webContents.send(IPC_CHANNELS.POMODORO_EVENT, p);
-        });
-      },
-      (err) => {
-        // eslint-disable-next-line no-console
-        console.error('Pomodoro subscription error:', err);
-      },
-    );
-  }
+  pomodoroService.subscribePomodoroEvents(
+    (p) => {
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send(IPC_CHANNELS.POMODORO_EVENT, p);
+      });
+    },
+    (err) => {
+      // eslint-disable-next-line no-console
+      console.error('Pomodoro subscription error:', err);
+    },
+  );
 }
 
 

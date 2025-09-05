@@ -15,8 +15,7 @@ export default class Application {
 
   public async init(): Promise<void> {
     log.info('[Application] init');
-    registerIpcHandlers();
-
+    
     // Initialize GraphQL service and run a connection check
     this.gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
 
@@ -48,6 +47,8 @@ export default class Application {
     const notificationService = new NotificationService();
     this.trayManager = new TrayManager(this.pomodoroService, undefined, notificationService);
     this.trayManager.init();
+    
+    registerIpcHandlers(this.gql);
   }
 
   public async destroy(): Promise<void> {

@@ -78,7 +78,15 @@ export class GraphQLService {
       httpLink,
     );
 
-    return new ApolloClient({ link, cache: new InMemoryCache(), connectToDevTools: false });
+    return new ApolloClient({
+      link,
+      cache: new InMemoryCache(),
+      connectToDevTools: false,
+      defaultOptions: {
+        query: { fetchPolicy: 'no-cache' },
+        watchQuery: { fetchPolicy: 'no-cache' }
+      }
+    });
   }
 
   public async query<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
