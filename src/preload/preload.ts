@@ -12,7 +12,7 @@ function handleIpcResponse<T>(response: IpcResponse<T>): T {
   return response.data as T;
 }
 
-async function invokeIpc<T>(channel: string, ...args: any[]): Promise<T> {
+async function invokeIpc<T>(channel: string, ...args: unknown[]): Promise<T> {
   const res = await ipcRenderer.invoke(channel, ...args);
   return handleIpcResponse<T>(res);
 }

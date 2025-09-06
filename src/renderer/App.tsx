@@ -48,7 +48,8 @@ export default function App(): React.ReactElement {
   const isFinished = !!pomodoro && pomodoro.state === 'FINISHED';
   
   const handleStart = () => {
-    start(selectedTaskId!);
+    if (!selectedTaskId) return;
+    start(selectedTaskId);
     setShowTaskManager(false);
   };
   

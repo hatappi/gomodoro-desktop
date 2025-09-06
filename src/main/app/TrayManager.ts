@@ -1,9 +1,7 @@
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, Tray, nativeImage } from 'electron';
 import PomodoroService from '../services/PomodoroService';
 import NotificationService from '../services/NotificationService';
-import type { Pomodoro } from '../../shared/types/gomodoro';
-import type { PomodoroState } from '../../shared/types/gomodoro';
-import type { PomodoroPhase } from '../../shared/types/gomodoro';
+import type { Pomodoro, PomodoroState, PomodoroPhase } from '../../shared/types/gomodoro';
 import { ERROR_MESSAGES } from '../../shared/constants/errorMessages';
 import log from 'electron-log/main'
 
