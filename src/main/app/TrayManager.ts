@@ -4,6 +4,8 @@ import NotificationService from '../services/NotificationService';
 import type { Pomodoro } from '../../shared/types/gomodoro';
 import type { PomodoroState } from '../../shared/types/gomodoro';
 import type { PomodoroPhase } from '../../shared/types/gomodoro';
+import { ERROR_MESSAGES } from '../../shared/constants/errorMessages';
+import log from 'electron-log/main'
 
 interface PomodoroConfig {
   workDurationSec: number;
@@ -59,7 +61,11 @@ export default class TrayManager {
         this.refreshMenu();
       })
       .catch((error) => {
-        console.error('[TrayManager] Failed to get current pomodoro:', error);
+        // Ignore "no current pomodoro" error since it usually happens on startup
+        if (error.message == ERROR_MESSAGES.NO_CURRENT_POMODORO) {
+          return;
+        }
+        log.error('[TrayManager] Failed to get current pomodoro:', error);
       });
   }
 
@@ -92,7 +98,7 @@ export default class TrayManager {
           try {
             await this.pomodoroService.startPomodoro(this.config);
           } catch (error) {
-            console.error('[TrayManager] Failed to start pomodoro:', error);
+            log.error('[TrayManager] Failed to start pomodoro:', error);
           }
         },
       });
@@ -101,7 +107,7 @@ export default class TrayManager {
       actionItems.push({
         label: 'Pause',
         click: () => this.pomodoroService.pausePomodoro().catch((error) => {
-          console.error('[TrayManager] Failed to pause pomodoro:', error);
+          log.error('[TrayManager] Failed to pause pomodoro:', error);
         }),
       });
     }
@@ -109,7 +115,7 @@ export default class TrayManager {
       actionItems.push({
         label: 'Resume',
         click: () => this.pomodoroService.resumePomodoro().catch((error) => {
-          console.error('[TrayManager] Failed to resume pomodoro:', error);
+          log.error('[TrayManager] Failed to resume pomodoro:', error);
         }),
       });
     }
@@ -117,7 +123,7 @@ export default class TrayManager {
       actionItems.push({
         label: 'Stop',
         click: () => this.pomodoroService.stopPomodoro().catch((error) => {
-          console.error('[TrayManager] Failed to stop pomodoro:', error);
+          log.error('[TrayManager] Failed to stop pomodoro:', error);
         }),
       });
     }
@@ -147,7 +153,7 @@ export default class TrayManager {
   private toggleMainWindow(): void {
     const windows = BrowserWindow.getAllWindows();
     if (windows.length === 0) {
-      console.warn('[TrayManager] No windows available to toggle');
+      log.warn('[TrayManager] No windows available to toggle');
       return;
     }
     
