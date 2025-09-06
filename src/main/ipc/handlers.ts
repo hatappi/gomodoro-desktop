@@ -35,11 +35,6 @@ async function withIpcErrorHandling<T>(handler: () => Promise<T>): Promise<IpcRe
 }
 
 export function registerIpcHandlers(gql: GraphQLService): void {
-  // Simple ping handler to validate the wiring end-to-end
-  ipcMain.handle(IPC_CHANNELS.PING, async (_event, message?: string) => {
-    return withIpcErrorHandling(async () => `pong:${message ?? ''}`);
-  });
-
   // Example config retrieval (placeholder)
   ipcMain.handle(IPC_CHANNELS.GET_CONFIG, async () => {
     return withIpcErrorHandling(async () => ({
