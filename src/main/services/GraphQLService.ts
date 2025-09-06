@@ -56,7 +56,7 @@ export class GraphQLService {
   private createApolloClient(): ApolloClient<NormalizedCacheObject> {
     const httpLink = new HttpLink({
       uri: this.httpUrl,
-      fetch: (globalThis as any).fetch,
+      fetch: globalThis.fetch,
       headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined,
     });
 
@@ -93,7 +93,7 @@ export class GraphQLService {
     document: TypedDocumentNode<TData, TVariables>,
     variables?: TVariables,
   ): Promise<TData> {
-    const res = await this.apollo.query({ query: document, variables: variables as any });
+    const res = await this.apollo.query({ query: document, variables });
     return res.data;
   }
 
@@ -101,7 +101,7 @@ export class GraphQLService {
     document: TypedDocumentNode<TData, TVariables>,
     variables?: TVariables,
   ): Promise<TData> {
-    const res = await this.apollo.mutate({ mutation: document, variables: variables as any });
+    const res = await this.apollo.mutate({ mutation: document, variables });
     if (!res.data) throw new Error('Empty mutation response');
     return res.data;
   }
@@ -112,7 +112,7 @@ export class GraphQLService {
     next: (data: TData) => void,
     error?: (err: unknown) => void,
   ): () => void {
-    const sub = this.apollo.subscribe({ query: document, variables: variables as any }).subscribe({
+    const sub = this.apollo.subscribe({ query: document, variables }).subscribe({
       next: (payload) => next(payload.data as TData),
       error: (err) => error?.(err),
     });

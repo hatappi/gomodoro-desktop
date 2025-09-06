@@ -27,6 +27,7 @@ import {
   DeleteTaskDocument,
   type DeleteTaskMutation,
   type DeleteTaskMutationVariables,
+  EventCategory,
 } from '../../shared/graphql/generated';
 import type { Pomodoro, StartPomodoroParams, Task } from '../../shared/types/gomodoro';
 
@@ -52,7 +53,9 @@ export default class PomodoroService {
 
   public async startPomodoro(input: StartPomodoroParams): Promise<Pomodoro> {
     const data = await this.gql.mutate<StartPomodoroMutation, StartPomodoroMutationVariables>(StartPomodoroDocument, { input });
-    const p = data.startPomodoro!;
+    const p = data.startPomodoro;
+    if (!p) throw new Error('Failed to start pomodoro. started pomodoro not found.');
+
     return {
       id: p.id,
       state: p.state,
@@ -67,7 +70,8 @@ export default class PomodoroService {
 
   public async pausePomodoro(): Promise<Pomodoro> {
     const data = await this.gql.mutate<PausePomodoroMutation, Record<string, never>>(PausePomodoroDocument, {} as Record<string, never>);
-    const p = data.pausePomodoro!;
+    const p = data.pausePomodoro;
+    if (!p) throw new Error('Failed to pause pomodoro. paused pomodoro not found.');
     return {
       id: p.id,
       state: p.state,
@@ -82,7 +86,8 @@ export default class PomodoroService {
 
   public async resumePomodoro(): Promise<Pomodoro> {
     const data = await this.gql.mutate<ResumePomodoroMutation, Record<string, never>>(ResumePomodoroDocument, {} as Record<string, never>);
-    const p = data.resumePomodoro!;
+    const p = data.resumePomodoro;
+    if (!p) throw new Error('Failed to resume pomodoro. resumed pomodoro not found.');
     return {
       id: p.id,
       state: p.state,
@@ -97,7 +102,8 @@ export default class PomodoroService {
 
   public async stopPomodoro(): Promise<Pomodoro> {
     const data = await this.gql.mutate<StopPomodoroMutation, Record<string, never>>(StopPomodoroDocument, {} as Record<string, never>);
-    const p = data.stopPomodoro!;
+    const p = data.stopPomodoro;
+    if (!p) throw new Error('Failed to stop pomodoro. stopped pomodoro not found.');
     return {
       id: p.id,
       state: p.state,
@@ -114,13 +120,13 @@ export default class PomodoroService {
     onEvent: (p: Pomodoro) => void,
     onError?: (err: unknown) => void,
   ): () => void {
-    const variables: OnPomodoroEventSubscriptionVariables = { input: { eventCategory: ['POMODORO' as any] } };
+    const variables: OnPomodoroEventSubscriptionVariables = { input: { eventCategory: [EventCategory.Pomodoro] } };
     return this.gql.subscribe<OnPomodoroEventSubscription, OnPomodoroEventSubscriptionVariables>(
       OnPomodoroEventDocument,
       variables,
       (data) => {
-        const payload = data.eventReceived?.payload as any;
-        if (payload && 'remainingTimeSec' in payload) {
+        const payload = data.eventReceived?.payload as unknown;
+        if (payload && typeof payload === 'object' && 'remainingTimeSec' in payload) {
           const p = payload as { id: string; state: Pomodoro['state']; taskId?: string | null; phase: Pomodoro['phase']; phaseCount: number; phaseDurationSec: number; remainingTimeSec: number; elapsedTimeSec: number };
           onEvent({
             id: p.id,
@@ -157,7 +163,8 @@ export default class PomodoroService {
     const data = await this.gql.mutate<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument, {
       input: { title: input.title }
     });
-    const task = data.createTask!;
+    const task = data.createTask;
+    if (!task) throw new Error('Failed to create task. created task not found.');
     return {
       id: task.id,
       title: task.title,
@@ -169,7 +176,8 @@ export default class PomodoroService {
     const data = await this.gql.mutate<UpdateTaskMutation, UpdateTaskMutationVariables>(UpdateTaskDocument, {
       input: { id: input.id, title: input.title }
     });
-    const task = data.updateTask!;
+    const task = data.updateTask;
+    if (!task) throw new Error('Failed to update task. updated task not found.');
     return {
       id: task.id,
       title: task.title,
@@ -183,7 +191,6 @@ export default class PomodoroService {
     });
     return data.deleteTask || false;
   }
-
 }
 
 
