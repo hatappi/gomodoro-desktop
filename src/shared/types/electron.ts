@@ -11,7 +11,6 @@ export type IpcResponse<T = unknown> = {
 };
 
 export interface ElectronAPI {
-  ping: (message?: string) => Promise<string>;
   getConfig: () => Promise<{ env: string }>;
   checkGraphQLConnection: () => Promise<{ isConnected: boolean }>;
   getCurrentPomodoro: () => Promise<Pomodoro | null>;

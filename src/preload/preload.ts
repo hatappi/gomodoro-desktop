@@ -19,11 +19,6 @@ async function invokeIpc<T>(channel: string, ...args: any[]): Promise<T> {
 
 // Expose a minimal, typed API to the renderer (secure bridge)
 const api = {
-  // Simple health check; this can be expanded to IPC later
-  ping: async (message?: string) => {
-    const result = await invokeIpc<string>(IPC_CHANNELS.PING, message ?? '');
-    return String(result);
-  },
   getConfig: () => invokeIpc<{ env: string }>(IPC_CHANNELS.GET_CONFIG),
   checkGraphQLConnection: () => invokeIpc<{ isConnected: boolean }>(IPC_CHANNELS.CHECK_GRAPHQL_CONNECTION),
   getCurrentPomodoro: () => invokeIpc<Pomodoro | null>(IPC_CHANNELS.GET_CURRENT_POMODORO),
