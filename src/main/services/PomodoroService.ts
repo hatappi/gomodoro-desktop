@@ -125,20 +125,28 @@ export default class PomodoroService {
       OnPomodoroEventDocument,
       variables,
       (data) => {
-        const payload = data.eventReceived?.payload as unknown;
-        if (payload && typeof payload === 'object' && 'remainingTimeSec' in payload) {
-          const p = payload as { id: string; state: Pomodoro['state']; taskId?: string | null; phase: Pomodoro['phase']; phaseCount: number; phaseDurationSec: number; remainingTimeSec: number; elapsedTimeSec: number };
-          onEvent({
-            id: p.id,
-            state: p.state,
-            taskId: p.taskId ?? '',
-            phase: p.phase,
-            phaseCount: p.phaseCount,
-            phaseDurationSec: p.phaseDurationSec,
-            remainingTimeSec: p.remainingTimeSec,
-            elapsedTimeSec: p.elapsedTimeSec,
-          });
+        const payload = data.eventReceived?.payload;
+        if (!payload) {
+          onError?.('Failed to get payload. payload not found.');
+          return;
         }
+
+        if (payload.__typename !== 'EventPomodoroPayload') {
+          onError?.('Failed to get payload. payload is not a pomodoro event.');
+          return;
+        }
+
+        const p = payload as { id: string; state: Pomodoro['state']; taskId?: string | null; phase: Pomodoro['phase']; phaseCount: number; phaseDurationSec: number; remainingTimeSec: number; elapsedTimeSec: number };
+        onEvent({
+          id: p.id,
+          state: p.state,
+          taskId: p.taskId ?? '',
+          phase: p.phase,
+          phaseCount: p.phaseCount,
+          phaseDurationSec: p.phaseDurationSec,
+          remainingTimeSec: p.remainingTimeSec,
+          elapsedTimeSec: p.elapsedTimeSec,
+        });
       },
       onError,
     );
