@@ -7,7 +7,6 @@ import type { IpcResponse } from '../../shared/types/electron';
 function handleIpcError(error: unknown): IpcResponse {
   const errorMessage = error instanceof Error ? error.message : 'Unknown error';
   const errorStack = error instanceof Error ? error.stack : undefined;
-  console.error('IPC Error:', error);
   
   return {
     success: false,
