@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Card,
   CardContent,
   Typography,
   Button,
-  Divider,
   List,
   ListItem,
   ListItemText,
@@ -24,20 +23,17 @@ import {
   RadioButtonUnchecked as RadioButtonUncheckedIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  PlayArrow as PlayArrowIcon,
 } from '@mui/icons-material';
 import { Task } from '../../../shared/types/gomodoro';
 
 type Props = {
   tasks: Task[];
   selectedTaskId: string | null;
-  onSelectTask: (taskId: string | null) => void;
+  onSelectTask: (taskId: string) => void;
   onCreateTask: (title: string) => void;
   onUpdateTask: (taskId: string, title: string) => void;
   onDeleteTask: (taskId: string) => void;
   loading?: boolean;
-  canStart: boolean;
-  onStart: () => void;
 };
 
 export default function TaskManager({
@@ -48,14 +44,24 @@ export default function TaskManager({
   onUpdateTask,
   onDeleteTask,
   loading = false,
-  canStart,
-  onStart,
 }: Props): React.ReactElement {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [editTaskTitle, setEditTaskTitle] = useState('');
+  
+  const selectedTaskRef = useRef<HTMLLIElement>(null);
+
+  // Auto-scroll to selected task
+  useEffect(() => {
+    if (selectedTaskId && selectedTaskRef.current) {
+      selectedTaskRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [selectedTaskId]);
 
   const handleCreateTask = () => {
     const title = newTaskTitle.trim();
@@ -146,10 +152,14 @@ export default function TaskManager({
           ) : (
             <List dense>
               {tasks.map((task) => (
-                <ListItem key={task.id} sx={{ p: 0 }}>
+                <ListItem 
+                  key={task.id} 
+                  sx={{ p: 0 }}
+                  ref={selectedTaskId === task.id ? selectedTaskRef : null}
+                >
                   <ListItemButton
                     selected={selectedTaskId === task.id}
-                    onClick={() => onSelectTask(selectedTaskId === task.id ? null : task.id)}
+                    onClick={() => onSelectTask(task.id)}
                     sx={{ py: 0 }}
                   >
                     <ListItemIcon sx={{ minWidth: 36 }}>
@@ -198,43 +208,6 @@ export default function TaskManager({
           )}
         </Box>
 
-        <Divider sx={{ my: 2 }} />
-
-        {/* Fixed Start Pomodoro Section */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box>
-            <Typography variant="subtitle2" color="primary">
-              Selected Task:
-            </Typography>
-            <Typography 
-              variant="body2" 
-              color="text.secondary"
-              sx={{ 
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tasks.find(t => t.id === selectedTaskId)?.title || 'No task selected'}
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<PlayArrowIcon />}
-            onClick={onStart}
-            disabled={!canStart || loading}
-            sx={{ 
-              minWidth: 120,
-              boxShadow: (theme) => `0 4px 14px 0 ${theme.palette.primary.main}40`,
-              '&:hover': {
-                boxShadow: (theme) => `0 6px 20px 0 ${theme.palette.primary.main}60`,
-              }
-            }}
-          >
-            Start
-          </Button>
-        </Box>
       </CardContent>
     </Card>
 
