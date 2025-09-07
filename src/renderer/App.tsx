@@ -47,9 +47,10 @@ export default function App(): React.ReactElement {
   const canStop = !!pomodoro && pomodoro.state !== 'FINISHED';
   const isFinished = !!pomodoro && pomodoro.state === 'FINISHED';
   
-  const handleStart = () => {
-    if (!selectedTaskId) return;
-    start(selectedTaskId);
+  const handleSelectTask = (taskId: string) => {
+    selectTask(taskId);
+    
+    start(taskId);
     setShowTaskManager(false);
   };
   
@@ -88,13 +89,11 @@ export default function App(): React.ReactElement {
                 <TaskManager
                   tasks={tasks}
                   selectedTaskId={selectedTaskId}
-                  onSelectTask={selectTask}
+                  onSelectTask={handleSelectTask}
                   onCreateTask={createTask}
                   onUpdateTask={updateTask}
                   onDeleteTask={deleteTask}
                   loading={tasksLoading}
-                  canStart={canStart}
-                  onStart={handleStart}
                 />
               </Box>
             </Fade>
@@ -110,7 +109,12 @@ export default function App(): React.ReactElement {
                   canResume={canResume}
                   canStop={canStop}
                   isFinished={isFinished}
-                  onStart={handleStart}
+                  onStart={() => {
+                    if (selectedTaskId) {
+                      start(selectedTaskId);
+                      setShowTaskManager(false);
+                    }
+                  }}
                   onPause={() => void pause()}
                   onResume={() => void resume()}
                   onStop={() => void stop()}
