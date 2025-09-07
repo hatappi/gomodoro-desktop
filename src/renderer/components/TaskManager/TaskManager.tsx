@@ -50,18 +50,25 @@ export default function TaskManager({
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [editTaskTitle, setEditTaskTitle] = useState('');
+  const [currentSelectedTaskId, setCurrentSelectedTaskId] = useState<string | null>(selectedTaskId);
   
   const selectedTaskRef = useRef<HTMLLIElement>(null);
+  const keyboardCardRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to selected task
+  // Sync external selectedTaskId with internal state
   useEffect(() => {
-    if (selectedTaskId && selectedTaskRef.current) {
+    setCurrentSelectedTaskId(selectedTaskId);
+  }, [selectedTaskId]);
+
+  // Auto-scroll to current selected task
+  useEffect(() => {
+    if (selectedTaskRef.current) {
       selectedTaskRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
       });
     }
-  }, [selectedTaskId]);
+  }, [currentSelectedTaskId]);
 
   const handleCreateTask = () => {
     const title = newTaskTitle.trim();
@@ -96,13 +103,126 @@ export default function TaskManager({
     onDeleteTask(taskId);
   };
 
+  const handleCreateDialogKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleCreateTask();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setCreateDialogOpen(false);
+    }
+  };
+
+  const handleEditDialogKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleUpdateTask();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setEditDialogOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Disable shortcuts when dialogs are open
+      if (createDialogOpen || editDialogOpen) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowUp':
+        case 'k': {
+          event.preventDefault();
+          if (tasks.length === 0) break;
+
+          if (currentSelectedTaskId === null) {
+            setCurrentSelectedTaskId(tasks[0].id);
+            break;
+          }
+          
+          const currentIndex = tasks.findIndex(task => task.id === currentSelectedTaskId);
+          if (currentIndex > 0 && currentIndex < tasks.length) {
+            setCurrentSelectedTaskId(tasks[currentIndex - 1].id);
+          }
+
+          break;
+        }
+        case 'ArrowDown':
+        case 'j': {
+          event.preventDefault();
+          if (tasks.length === 0) break;
+
+          if (currentSelectedTaskId === null) {
+            setCurrentSelectedTaskId(tasks[0].id);
+            break;
+          }
+          
+          const currentIndex = tasks.findIndex(task => task.id === currentSelectedTaskId);
+          if (currentIndex >= 0 && currentIndex < tasks.length - 1) {
+            setCurrentSelectedTaskId(tasks[currentIndex + 1].id);
+          }
+
+          break;
+        }
+        case 'Enter': {
+          event.preventDefault();
+          if (currentSelectedTaskId) {
+            onSelectTask(currentSelectedTaskId);
+          }
+          break;
+        }
+        case 'e': {
+          event.preventDefault();
+          const currentTask = tasks.find(task => task.id === currentSelectedTaskId);
+          if (currentTask) {
+            handleEditTask(currentTask);
+          }
+          break;
+        }
+        case 'd': {
+          event.preventDefault();
+          if (currentSelectedTaskId) {
+            handleDeleteTask(currentSelectedTaskId);
+          }
+          break;
+        }
+        case 'n': {
+          event.preventDefault();
+          setCreateDialogOpen(true);
+          break;
+        }
+      }
+    };
+
+    const ref = keyboardCardRef.current;
+    if (ref) {
+      ref.addEventListener('keydown', handleKeyDown);
+      return () => {
+        ref.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [tasks, currentSelectedTaskId, createDialogOpen, editDialogOpen, onSelectTask, handleDeleteTask]);
+
+  useEffect(() => {
+    // To enable shortcuts when tasks are visible, need to focus it.
+    keyboardCardRef.current?.focus();
+  }, []);
+
   return (
     <>
-    <Card sx={{ 
-      height: 'clamp(400px, 60vh, 700px)',
-      display: 'flex', 
-      flexDirection: 'column'
-    }}>
+    <Card 
+      ref={keyboardCardRef}
+      tabIndex={0}
+      sx={{ 
+        height: 'clamp(400px, 60vh, 700px)',
+        display: 'flex', 
+        flexDirection: 'column',
+        '&:focus-visible': {
+          outline: 'none',
+        }
+      }}
+    >
       <CardContent sx={{ 
         display: 'flex', 
         flexDirection: 'column', 
@@ -155,10 +275,10 @@ export default function TaskManager({
                 <ListItem 
                   key={task.id} 
                   sx={{ p: 0 }}
-                  ref={selectedTaskId === task.id ? selectedTaskRef : null}
+                  ref={currentSelectedTaskId === task.id ? selectedTaskRef : null}
                 >
                   <ListItemButton
-                    selected={selectedTaskId === task.id}
+                    selected={currentSelectedTaskId === task.id}
                     onClick={() => onSelectTask(task.id)}
                     sx={{ py: 0 }}
                   >
@@ -227,6 +347,7 @@ export default function TaskManager({
             fullWidth
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
+            onKeyDown={handleCreateDialogKeyDown}
           />
         </DialogContent>
 
@@ -263,6 +384,7 @@ export default function TaskManager({
             variant="outlined"
             value={editTaskTitle}
             onChange={(e) => setEditTaskTitle(e.target.value)}
+            onKeyDown={handleEditDialogKeyDown}
           />
         </DialogContent>
 
