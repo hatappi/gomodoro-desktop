@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Gomodoro Desktop is an Electron-based Pomodoro timer application that integrates with a Go backend server. The app features a system tray interface and a React-based UI for task management and timer controls.
+Gomodoro Desktop is an Electron-based Pomodoro timer application that integrates with a Go backend server. The app features a system tray interface and a React-based UI for task management and timer controls with keyboard shortcuts support.
 
 ## Development Commands
 
@@ -35,7 +35,7 @@ The main process automatically starts a `gomodoro serve` CLI process if it can't
 ### Renderer Process (`src/renderer/`)
 - **App.tsx** - Main React component with timer and task management UI
 - **hooks/** - Custom React hooks for pomodoro state and task management
-- **components/** - Modular UI components (Timer, Controls, TaskManager, Layout)
+- **components/** - Modular UI components (Timer, Controls, TaskManager with keyboard shortcuts, Layout)
 
 ### Shared (`src/shared/`)
 - **types/** - TypeScript type definitions shared between processes
@@ -87,3 +87,12 @@ When modifying the UI:
 - Use Material-UI components and the theme defined in `src/renderer/styles/theme.ts`
 - Follow the existing component structure and prop patterns
 - Custom hooks should be placed in `src/renderer/hooks/`
+- TaskManager supports keyboard shortcuts for navigation and actions
+
+## Recent Features
+
+### Keyboard Shortcuts (v0.0.16)
+The TaskManager component now includes comprehensive keyboard shortcuts:
+- Navigation: Arrow keys, Home/End, Page Up/Down
+- Task management: Delete key for task deletion
+- Enhanced task selection and workflow integration
