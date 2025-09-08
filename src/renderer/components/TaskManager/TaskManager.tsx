@@ -99,8 +99,17 @@ export default function TaskManager({
     setEditDialogOpen(false);
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    onDeleteTask(taskId);
+  const handleDeleteTask = async (taskId: string) => {
+    const willDeleteTaskIndex = tasks.findIndex(task => task.id === taskId);
+    const newSelectedTaskIndex = willDeleteTaskIndex > 0 ? willDeleteTaskIndex - 1 : willDeleteTaskIndex + 1;
+
+    await onDeleteTask(taskId);
+
+    if (newSelectedTaskIndex >= 0 && newSelectedTaskIndex < tasks.length) {
+      setCurrentSelectedTaskId(tasks[newSelectedTaskIndex].id);
+    } else {
+      setCurrentSelectedTaskId(null);
+    }
   };
 
   const handleCreateDialogKeyDown = (event: React.KeyboardEvent) => {
