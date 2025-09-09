@@ -84,6 +84,7 @@ export default class TrayManager {
     const template: MenuItemConstructorOptions[] = [
       {
         label: 'Show / Hide',
+        accelerator: 't',
         click: () => this.toggleMainWindow(),
       },
     ];
@@ -92,6 +93,7 @@ export default class TrayManager {
     if (canStart) {
       actionItems.push({
         label: 'Start',
+        accelerator: 's',
         click: async () => {
           try {
             await this.pomodoroService.startPomodoro(this.config);
@@ -104,6 +106,7 @@ export default class TrayManager {
     if (canPause) {
       actionItems.push({
         label: 'Pause',
+        accelerator: 'p',
         click: () => this.pomodoroService.pausePomodoro().catch((error) => {
           log.error('[TrayManager] Failed to pause pomodoro:', error);
         }),
@@ -112,6 +115,7 @@ export default class TrayManager {
     if (canResume) {
       actionItems.push({
         label: 'Resume',
+        accelerator: 'r',
         click: () => this.pomodoroService.resumePomodoro().catch((error) => {
           log.error('[TrayManager] Failed to resume pomodoro:', error);
         }),
@@ -120,6 +124,7 @@ export default class TrayManager {
     if (canStop) {
       actionItems.push({
         label: 'Stop',
+        accelerator: 'x',
         click: () => this.pomodoroService.stopPomodoro().catch((error) => {
           log.error('[TrayManager] Failed to stop pomodoro:', error);
         }),
@@ -135,7 +140,7 @@ export default class TrayManager {
       {
         label: 'Quit',
         role: 'quit',
-        accelerator: 'Cmd+Q',
+        accelerator: 'q',
         click: () => app.quit(),
       },
     );
@@ -163,6 +168,15 @@ export default class TrayManager {
       win.focus();
     }
   }
+
+  public showTrayMenu(): void {
+    if (!this.tray) {
+      return;
+    }
+    
+    this.tray.popUpContextMenu();
+  }
+
 
   private setTrayTitle(text: string): void {
     if (!this.tray) return;
