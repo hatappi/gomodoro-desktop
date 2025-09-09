@@ -21,7 +21,7 @@ export default function App(): React.ReactElement {
     deleteTask
   } = useTasks();
   
-  const [showTaskManager, setShowTaskManager] = useState(false);
+  const [showTaskManager, setShowTaskManager] = useState(true);
   const isInitializedRef = useRef(false);
  
   // Initialize selectedTaskId and showTaskManager
@@ -34,9 +34,8 @@ export default function App(): React.ReactElement {
     const initialTaskId = pomodoro?.taskId;
     if (initialTaskId && pomodoro?.state !== 'FINISHED') {
       selectTask(initialTaskId);
-    }
-
-    if (!pomodoro || !initialTaskId) {
+      setShowTaskManager(false);
+    } else {
       setShowTaskManager(true);
     } 
   }, [isLoading, tasksLoading, pomodoro, selectedTaskId, selectTask]);
