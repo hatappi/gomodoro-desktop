@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { 
   Button, 
   Stack, 
@@ -41,6 +41,7 @@ type Props = {
 
 export default function Controls(props: Props): React.ReactElement {
   const { isLoading, canStart, canPause, canResume, canStop, isFinished, onStart, onPause, onResume, onStop, onChangeTask } = props;
+  const controlsRef = useRef<HTMLDivElement>(null);
 
   // Main action button (Start/Pause/Resume)
   const primaryAction: ControlAction | null = (() => {
@@ -74,8 +75,67 @@ export default function Controls(props: Props): React.ReactElement {
     return null;
   })();
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Disable shortcuts when loading
+      if (isLoading) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'e': {
+          event.preventDefault();
+          if (canStop) {
+            onStop();
+          }
+          break;
+        }
+        case 'c': {
+          event.preventDefault();
+          if (isFinished) {
+            onChangeTask();
+          }
+          break;
+        }
+        case 'Enter': {
+          event.preventDefault();
+          if (canStart) {
+            onStart();
+          } else if (canPause) {
+            onPause();
+          } else if (canResume) {
+            onResume();
+          }
+          break;
+        }
+      }
+    };
+
+    const ref = controlsRef.current;
+    if (ref) {
+      ref.addEventListener('keydown', handleKeyDown);
+      return () => {
+        ref.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isLoading, canStart, canPause, canResume, canStop, isFinished, onStart, onPause, onResume, onStop, onChangeTask]);
+
+  useEffect(() => {
+    // To enable keyboard shortcuts when component becomes visible
+    controlsRef.current?.focus();
+  }, []);
+
   return (
-    <Box>
+    <Box
+      ref={controlsRef}
+      tabIndex={0}
+      sx={{
+        '&:focus-visible': {
+          outline: 'none',
+        }
+      }}
+    >
       {isLoading && (
         <Chip
           icon={<CircularProgress size='clamp(12px, 2vw, 20px)' />}
