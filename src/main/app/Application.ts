@@ -5,6 +5,7 @@ import PomodoroService from '../services/PomodoroService';
 import TrayManager from './TrayManager';
 import NotificationService from '../services/NotificationService';
 import { spawn, ChildProcess } from 'child_process';
+import { globalShortcut } from 'electron';
 import log from 'electron-log/main'
 
 export default class Application {
@@ -48,10 +49,13 @@ export default class Application {
     this.trayManager = new TrayManager(this.pomodoroService, undefined, notificationService);
     this.trayManager.init();
     
+    this.registerGlobalShortcuts();
+    
     registerIpcHandlers(this.gql);
   }
 
   public async destroy(): Promise<void> {
+    globalShortcut.unregisterAll();
     this.trayManager?.destroy();
     
     if (this.gomodoroCLIProcess) {
@@ -64,6 +68,14 @@ export default class Application {
       }
     }
   }
+
+  private registerGlobalShortcuts(): void {
+    const ret = globalShortcut.register('CommandOrControl+Ctrl+G', () => {
+      this.trayManager?.showTrayMenu();
+    });
+
+    if (!ret) {
+      log.error('[Application] Failed to register global shortcut');
+    }
+  }
 }
-
-
