@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, nativeImage } from 'electron';
 import path from 'node:path';
 import Application from './app/Application';
 import { updateElectronApp, UpdateSourceType } from 'update-electron-app'
@@ -39,7 +39,8 @@ if (!gotLock) {
   });
 
   app.on('ready', async () => {
-    app.dock?.hide();
+    app.dock?.setIcon(nativeImage.createFromPath(path.join(__dirname, '..', 'assets', 'icons', 'icon.icns')));
+
     application = new Application();
     await application.init();
     createWindow();
