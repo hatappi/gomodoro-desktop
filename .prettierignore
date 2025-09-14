@@ -1,0 +1,2 @@
+# Generated GraphQL types - exclude from formatting
+src/shared/graphql/generated.ts
