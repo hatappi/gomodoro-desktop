@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { Pomodoro } from '../../shared/types/gomodoro';
+import { useEffect, useMemo, useState } from "react";
+import type { Pomodoro } from "../../shared/types/gomodoro";
 
 export type UsePomodoroResult = {
   pomodoro: Pomodoro | null;
@@ -51,7 +51,7 @@ export function usePomodoro(): UsePomodoroResult {
         workDurationSec: 1500,
         breakDurationSec: 300,
         longBreakDurationSec: 900,
-        taskId: taskId ?? 'default-task',
+        taskId: taskId ?? "default-task",
       };
       await window.electronAPI.startPomodoro(input);
       const current = await window.electronAPI.getCurrentPomodoro();
@@ -110,8 +110,6 @@ export function usePomodoro(): UsePomodoroResult {
 
   return useMemo(
     () => ({ pomodoro, isLoading, error, start, pause, resume, stop }),
-    [pomodoro, isLoading, error]
+    [pomodoro, isLoading, error],
   );
 }
-
-

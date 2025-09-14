@@ -1,4 +1,4 @@
-import type { Pomodoro, StartPomodoroParams, Task } from './gomodoro';
+import type { Pomodoro, StartPomodoroParams, Task } from "./gomodoro";
 
 export type IpcResponse<T = unknown> = {
   success: boolean;
@@ -34,5 +34,3 @@ declare global {
     electronAPI: ElectronAPI;
   }
 }
-
-

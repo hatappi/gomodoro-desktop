@@ -1,16 +1,16 @@
-import { setTimeout as delay } from 'node:timers/promises';
+import { setTimeout as delay } from "node:timers/promises";
 import {
   ApolloClient,
   InMemoryCache,
   HttpLink,
   split,
   NormalizedCacheObject,
-} from '@apollo/client';
-import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { getMainDefinition } from '@apollo/client/utilities';
-import { createClient } from 'graphql-ws';
-import WebSocket from 'ws';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
+} from "@apollo/client";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { createClient } from "graphql-ws";
+import WebSocket from "ws";
+import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 
 export type GraphQLServiceOptions = {
   httpUrl: string;
@@ -33,7 +33,12 @@ export class GraphQLService {
     try {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 5000);
-      const res = await fetch(this.httpUrl, { method: 'POST', signal: controller.signal, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ query: '{ __typename }' }) });
+      const res = await fetch(this.httpUrl, {
+        method: "POST",
+        signal: controller.signal,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ query: "{ __typename }" }),
+      });
       clearTimeout(id);
       return res.ok;
     } catch {
@@ -58,7 +63,9 @@ export class GraphQLService {
 
     const wsLink = new GraphQLWsLink(
       createClient({
-        url: this.wsUrl.startsWith('ws') ? this.wsUrl : this.wsUrl.replace(/^http/, 'ws'),
+        url: this.wsUrl.startsWith("ws")
+          ? this.wsUrl
+          : this.wsUrl.replace(/^http/, "ws"),
         webSocketImpl: WebSocket,
         retryAttempts: 3,
       }),
@@ -67,7 +74,9 @@ export class GraphQLService {
     const link = split(
       ({ query }) => {
         const def = getMainDefinition(query);
-        return def.kind === 'OperationDefinition' && def.operation === 'subscription';
+        return (
+          def.kind === "OperationDefinition" && def.operation === "subscription"
+        );
       },
       wsLink,
       httpLink,
@@ -79,13 +88,16 @@ export class GraphQLService {
       connectToDevTools: false,
       defaultOptions: {
         // To avoid unexpected caching, we always fetch the latest data
-        query: { fetchPolicy: 'no-cache' },
-        watchQuery: { fetchPolicy: 'no-cache' }
-      }
+        query: { fetchPolicy: "no-cache" },
+        watchQuery: { fetchPolicy: "no-cache" },
+      },
     });
   }
 
-  public async query<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
+  public async query<
+    TData,
+    TVariables extends Record<string, unknown> = Record<string, unknown>,
+  >(
     document: TypedDocumentNode<TData, TVariables>,
     variables?: TVariables,
   ): Promise<TData> {
@@ -93,27 +105,33 @@ export class GraphQLService {
     return res.data;
   }
 
-  public async mutate<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
+  public async mutate<
+    TData,
+    TVariables extends Record<string, unknown> = Record<string, unknown>,
+  >(
     document: TypedDocumentNode<TData, TVariables>,
     variables?: TVariables,
   ): Promise<TData> {
     const res = await this.apollo.mutate({ mutation: document, variables });
-    if (!res.data) throw new Error('Empty mutation response');
+    if (!res.data) throw new Error("Empty mutation response");
     return res.data;
   }
 
-  public subscribe<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
+  public subscribe<
+    TData,
+    TVariables extends Record<string, unknown> = Record<string, unknown>,
+  >(
     document: TypedDocumentNode<TData, TVariables>,
     variables: TVariables,
     next: (data: TData) => void,
     error?: (err: unknown) => void,
   ): () => void {
-    const sub = this.apollo.subscribe({ query: document, variables }).subscribe({
-      next: (payload) => next(payload.data as TData),
-      error: (err) => error?.(err),
-    });
+    const sub = this.apollo
+      .subscribe({ query: document, variables })
+      .subscribe({
+        next: (payload) => next(payload.data as TData),
+        error: (err) => error?.(err),
+      });
     return () => sub.unsubscribe();
   }
 }
-
-
