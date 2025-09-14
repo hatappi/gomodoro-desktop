@@ -29,7 +29,7 @@ export default class Application {
           log.error('[Application] Failed to start gomodoro server:', error);
         });
 
-        this.gomodoroCLIProcess.on('exit', (code) => {
+        this.gomodoroCLIProcess.on('exit', () => {
           this.gomodoroCLIProcess = null;
         });
 
