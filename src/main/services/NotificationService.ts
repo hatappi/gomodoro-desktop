@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Notification } from 'electron';
 import type { PomodoroPhase, PomodoroState } from '../../shared/types/gomodoro';
+import log from 'electron-log/main'
 
 export default class NotificationService {
   public notifyFinished(state: PomodoroState, phase: PomodoroPhase): void {
@@ -40,8 +41,8 @@ export default class NotificationService {
         win.show();
         app.focus();
         win.focus();
-      } catch {
-        console.error('Failed to show notification');
+      } catch (error) {
+        log.error('Failed to show notification', error);
       }
     });
     notification.show();

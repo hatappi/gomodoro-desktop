@@ -21,6 +21,8 @@ async function invokeIpc<T>(channel: string, ...args: unknown[]): Promise<T> {
 const api = {
   getConfig: () => invokeIpc<{ env: string }>(IPC_CHANNELS.GET_CONFIG),
   checkGraphQLConnection: () => invokeIpc<{ isConnected: boolean }>(IPC_CHANNELS.CHECK_GRAPHQL_CONNECTION),
+
+  // Pomodoro management
   getCurrentPomodoro: () => invokeIpc<Pomodoro | null>(IPC_CHANNELS.GET_CURRENT_POMODORO),
   startPomodoro: (input: StartPomodoroParams) => invokeIpc<Pomodoro>(IPC_CHANNELS.START_POMODORO, input),
   pausePomodoro: () => invokeIpc<Pomodoro>(IPC_CHANNELS.PAUSE_POMODORO),
@@ -31,6 +33,7 @@ const api = {
     ipcRenderer.on(IPC_CHANNELS.POMODORO_EVENT, handler);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.POMODORO_EVENT, handler);
   },
+
   // Task management
   listTasks: () => invokeIpc<Task[]>(IPC_CHANNELS.LIST_TASKS),
   createTask: (input: { title: string }) => invokeIpc<Task>(IPC_CHANNELS.CREATE_TASK, input),

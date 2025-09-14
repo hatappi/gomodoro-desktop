@@ -15,9 +15,6 @@ export default class Application {
   private gomodoroCLIProcess: ChildProcess | null = null;
 
   public async init(): Promise<void> {
-    log.info('[Application] init');
-    
-    // Initialize GraphQL service and run a connection check
     this.gql = new GraphQLService({ httpUrl: GRAPHQL_HTTP_URL, wsUrl: GRAPHQL_WS_URL });
 
     const ok = await this.gql.testReconnect(2);
@@ -33,19 +30,17 @@ export default class Application {
         });
 
         this.gomodoroCLIProcess.on('exit', (code) => {
-          log.info(`[Application] gomodoro server exited with code ${code}`);
           this.gomodoroCLIProcess = null;
         });
 
-        log.info('[Application] gomodoro server started');
       } catch (error) {
         log.error('[Application] Error starting gomodoro server:', error);
       }
     }
 
-    // Initialize services used by Tray
     this.pomodoroService = new PomodoroService(this.gql);
     const notificationService = new NotificationService();
+
     this.trayManager = new TrayManager(this.pomodoroService, undefined, notificationService);
     this.trayManager.init();
     

@@ -13,12 +13,15 @@ export type IpcResponse<T = unknown> = {
 export interface ElectronAPI {
   getConfig: () => Promise<{ env: string }>;
   checkGraphQLConnection: () => Promise<{ isConnected: boolean }>;
+
+  // Pomodoro management
   getCurrentPomodoro: () => Promise<Pomodoro | null>;
   startPomodoro: (input: StartPomodoroParams) => Promise<Pomodoro>;
   pausePomodoro: () => Promise<Pomodoro>;
   resumePomodoro: () => Promise<Pomodoro>;
   stopPomodoro: () => Promise<Pomodoro>;
   onPomodoroEvent: (listener: (event: Pomodoro) => void) => () => void;
+
   // Task management
   listTasks: () => Promise<Task[]>;
   createTask: (input: { title: string }) => Promise<Task>;

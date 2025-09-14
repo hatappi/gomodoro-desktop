@@ -3,6 +3,7 @@ import { IPC_CHANNELS } from './channels';
 import { GraphQLService } from '../services/GraphQLService';
 import PomodoroService from '../services/PomodoroService';
 import type { IpcResponse } from '../../shared/types/electron';
+import log from 'electron-log/main'
 
 function handleIpcError(error: unknown): IpcResponse {
   const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -114,10 +115,7 @@ export function registerIpcHandlers(gql: GraphQLService): void {
       });
     },
     (err) => {
-      // eslint-disable-next-line no-console
-      console.error('Pomodoro subscription error:', err);
+      log.error('Pomodoro subscription error:', err);
     },
   );
 }
-
-

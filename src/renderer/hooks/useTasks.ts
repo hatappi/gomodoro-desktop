@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Task } from '../../shared/types/gomodoro';
+import log from 'electron-log/renderer'
 
 type UseTasksReturn = {
   tasks: Task[];
@@ -28,7 +29,7 @@ export function useTasks(): UseTasksReturn {
       setTasks(tasks);
     } catch (err) {
       setError('Failed to fetch tasks');
-      console.error('Failed to fetch tasks:', err);
+      log.error('Failed to fetch tasks:', err);
     } finally {
       setLoading(false);
     }
@@ -43,7 +44,7 @@ export function useTasks(): UseTasksReturn {
       await refreshTasks();
     } catch (err) {
       setError('Failed to create task');
-      console.error('Failed to create task:', err);
+      log.error('Failed to create task:', err);
     } finally {
       setLoading(false);
     }
@@ -58,7 +59,7 @@ export function useTasks(): UseTasksReturn {
       await refreshTasks();
     } catch (err) {
       setError('Failed to update task');
-      console.error('Failed to update task:', err);
+      log.error('Failed to update task:', err);
     } finally {
       setLoading(false);
     }
@@ -71,13 +72,14 @@ export function useTasks(): UseTasksReturn {
       
       await window.electronAPI.deleteTask({ taskId });
       await refreshTasks();
+
       // If deleted task was selected, deselect it
       if (selectedTaskId === taskId) {
         setSelectedTaskId(null);
       }
     } catch (err) {
       setError('Failed to delete task');
-      console.error('Failed to delete task:', err);
+      log.error('Failed to delete task:', err);
     } finally {
       setLoading(false);
     }
