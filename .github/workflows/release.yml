@@ -19,13 +19,13 @@ jobs:
         arch: [x64, arm64]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: 'package.json'
-          cache: 'npm'
-      
+          node-version-file: "package.json"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
 
@@ -40,7 +40,7 @@ jobs:
       - name: Generate App Store Connect API key file
         run: |
           echo "${{ secrets.APPLE_API_KEY_BASE64 }}" | base64 -d > appstore-connect-api-key.p8
-      
+
       - name: Build for ${{ matrix.arch }}
         run: npm run publish -- --dry-run --platform=darwin --arch=${{ matrix.arch }}
         env:
@@ -68,16 +68,16 @@ jobs:
           pattern: build-*
           path: out
           merge-multiple: true
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: 'package.json'
-          cache: 'npm'
-      
+          node-version-file: "package.json"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Publish to GitHub Releases
         run: npm run publish -- --from-dry-run
         env:

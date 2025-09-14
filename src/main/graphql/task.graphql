@@ -43,4 +43,3 @@ mutation UpdateTask($input: UpdateTaskInput!) {
 mutation DeleteTask($id: ID!) {
   deleteTask(id: $id)
 }
-

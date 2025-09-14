@@ -1,8 +1,8 @@
-import { app, BrowserWindow, nativeImage } from 'electron';
-import path from 'node:path';
-import Application from './app/Application';
-import { updateElectronApp, UpdateSourceType } from 'update-electron-app'
-import log from 'electron-log/main'
+import { app, BrowserWindow, nativeImage } from "electron";
+import path from "node:path";
+import Application from "./app/Application";
+import { updateElectronApp, UpdateSourceType } from "update-electron-app";
+import log from "electron-log/main";
 
 log.initialize();
 
@@ -13,7 +13,7 @@ const createWindow = () => {
     width: 400,
     height: 500,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
     },
@@ -22,7 +22,9 @@ const createWindow = () => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    mainWindow.loadFile(
+      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
+    );
   }
 };
 
@@ -30,7 +32,7 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
-  app.on('second-instance', () => {
+  app.on("second-instance", () => {
     const win = BrowserWindow.getAllWindows()[0];
     if (win) {
       if (win.isMinimized()) win.restore();
@@ -38,8 +40,12 @@ if (!gotLock) {
     }
   });
 
-  app.on('ready', async () => {
-    app.dock?.setIcon(nativeImage.createFromPath(path.join(__dirname, '..', 'assets', 'icons', 'icon.icns')));
+  app.on("ready", async () => {
+    app.dock?.setIcon(
+      nativeImage.createFromPath(
+        path.join(__dirname, "..", "assets", "icons", "icon.icns"),
+      ),
+    );
 
     application = new Application();
     await application.init();
@@ -48,21 +54,19 @@ if (!gotLock) {
     updateElectronApp({
       updateSource: {
         type: UpdateSourceType.ElectronPublicUpdateService,
-        repo: 'hatappi/gomodoro-desktop',
+        repo: "hatappi/gomodoro-desktop",
       },
       logger: log,
     });
   });
 }
 
-app.on('activate', () => {
+app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
-app.on('before-quit', async () => {
+app.on("before-quit", async () => {
   await application?.destroy();
 });
-
-

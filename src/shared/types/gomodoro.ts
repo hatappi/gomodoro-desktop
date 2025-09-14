@@ -1,5 +1,5 @@
-export type PomodoroState = 'ACTIVE' | 'PAUSED' | 'FINISHED';
-export type PomodoroPhase = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
+export type PomodoroState = "ACTIVE" | "PAUSED" | "FINISHED";
+export type PomodoroPhase = "WORK" | "SHORT_BREAK" | "LONG_BREAK";
 
 export type Pomodoro = {
   id: string;
@@ -24,4 +24,3 @@ export type StartPomodoroParams = {
   longBreakDurationSec: number;
   taskId: string;
 };
-

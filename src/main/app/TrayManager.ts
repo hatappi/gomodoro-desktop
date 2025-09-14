@@ -1,9 +1,20 @@
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions, Tray, nativeImage } from 'electron';
-import PomodoroService from '../services/PomodoroService';
-import NotificationService from '../services/NotificationService';
-import type { Pomodoro, PomodoroState, PomodoroPhase } from '../../shared/types/gomodoro';
-import { ERROR_MESSAGES } from '../../shared/constants/errorMessages';
-import log from 'electron-log/main'
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  MenuItemConstructorOptions,
+  Tray,
+  nativeImage,
+} from "electron";
+import PomodoroService from "../services/PomodoroService";
+import NotificationService from "../services/NotificationService";
+import type {
+  Pomodoro,
+  PomodoroState,
+  PomodoroPhase,
+} from "../../shared/types/gomodoro";
+import { ERROR_MESSAGES } from "../../shared/constants/errorMessages";
+import log from "electron-log/main";
 
 interface PomodoroConfig {
   workDurationSec: number;
@@ -14,23 +25,23 @@ interface PomodoroConfig {
 
 const DEFAULT_POMODORO_CONFIG: PomodoroConfig = {
   workDurationSec: 1500, // 25 minutes
-  breakDurationSec: 300,  // 5 minutes
+  breakDurationSec: 300, // 5 minutes
   longBreakDurationSec: 900, // 15 minutes
-  taskId: 'default-task',
+  taskId: "default-task",
 };
 
 const EMOJI_MAP = {
-  DEFAULT: '🍅',
-  PAUSED: '⏸️',
-  FINISHED: '✅',
-  WORK: '🎯',
-  SHORT_BREAK: '☕',
-  LONG_BREAK: '🌴',
+  DEFAULT: "🍅",
+  PAUSED: "⏸️",
+  FINISHED: "✅",
+  WORK: "🎯",
+  SHORT_BREAK: "☕",
+  LONG_BREAK: "🌴",
 } as const;
 
 export default class TrayManager {
   private tray: Tray | null = null;
-  private currentStateLabel = '';
+  private currentStateLabel = "";
   private currentState: PomodoroState | null = null;
   private currentPhase: PomodoroPhase | null = null;
   private eventSubscription: (() => void) | null = null;
@@ -46,14 +57,17 @@ export default class TrayManager {
     this.tray.setContextMenu(this.buildMenu());
 
     this.setTrayTooltip();
-    this.setTrayTitle('');
+    this.setTrayTitle("");
 
-    this.eventSubscription = this.pomodoroService.subscribePomodoroEvents((p) => {
-      this.applyPomodoro(p);
-      this.refreshMenu();
-    });
+    this.eventSubscription = this.pomodoroService.subscribePomodoroEvents(
+      (p) => {
+        this.applyPomodoro(p);
+        this.refreshMenu();
+      },
+    );
 
-    this.pomodoroService.getCurrentPomodoro()
+    this.pomodoroService
+      .getCurrentPomodoro()
       .then((p) => {
         this.applyPomodoro(p);
         this.refreshMenu();
@@ -63,7 +77,7 @@ export default class TrayManager {
         if (error.message == ERROR_MESSAGES.NO_CURRENT_POMODORO) {
           return;
         }
-        log.error('[TrayManager] Failed to get current pomodoro:', error);
+        log.error("[TrayManager] Failed to get current pomodoro:", error);
       });
   }
 
@@ -73,8 +87,8 @@ export default class TrayManager {
   }
 
   private buildMenu(): Menu {
-    const isActive = this.currentState === 'ACTIVE';
-    const isPaused = this.currentState === 'PAUSED';
+    const isActive = this.currentState === "ACTIVE";
+    const isPaused = this.currentState === "PAUSED";
 
     const canStart = !isActive && !isPaused;
     const canPause = isActive;
@@ -83,8 +97,8 @@ export default class TrayManager {
 
     const template: MenuItemConstructorOptions[] = [
       {
-        label: 'Show / Hide',
-        accelerator: 't',
+        label: "Show / Hide",
+        accelerator: "t",
         click: () => this.toggleMainWindow(),
       },
     ];
@@ -92,55 +106,58 @@ export default class TrayManager {
     const actionItems: MenuItemConstructorOptions[] = [];
     if (canStart) {
       actionItems.push({
-        label: 'Start',
-        accelerator: 's',
+        label: "Start",
+        accelerator: "s",
         click: async () => {
           try {
             await this.pomodoroService.startPomodoro(this.config);
           } catch (error) {
-            log.error('[TrayManager] Failed to start pomodoro:', error);
+            log.error("[TrayManager] Failed to start pomodoro:", error);
           }
         },
       });
     }
     if (canPause) {
       actionItems.push({
-        label: 'Pause',
-        accelerator: 'p',
-        click: () => this.pomodoroService.pausePomodoro().catch((error) => {
-          log.error('[TrayManager] Failed to pause pomodoro:', error);
-        }),
+        label: "Pause",
+        accelerator: "p",
+        click: () =>
+          this.pomodoroService.pausePomodoro().catch((error) => {
+            log.error("[TrayManager] Failed to pause pomodoro:", error);
+          }),
       });
     }
     if (canResume) {
       actionItems.push({
-        label: 'Resume',
-        accelerator: 'r',
-        click: () => this.pomodoroService.resumePomodoro().catch((error) => {
-          log.error('[TrayManager] Failed to resume pomodoro:', error);
-        }),
+        label: "Resume",
+        accelerator: "r",
+        click: () =>
+          this.pomodoroService.resumePomodoro().catch((error) => {
+            log.error("[TrayManager] Failed to resume pomodoro:", error);
+          }),
       });
     }
     if (canStop) {
       actionItems.push({
-        label: 'Stop',
-        accelerator: 'x',
-        click: () => this.pomodoroService.stopPomodoro().catch((error) => {
-          log.error('[TrayManager] Failed to stop pomodoro:', error);
-        }),
+        label: "Stop",
+        accelerator: "x",
+        click: () =>
+          this.pomodoroService.stopPomodoro().catch((error) => {
+            log.error("[TrayManager] Failed to stop pomodoro:", error);
+          }),
       });
     }
 
     if (actionItems.length > 0) {
-      template.push({ type: 'separator' }, ...actionItems);
+      template.push({ type: "separator" }, ...actionItems);
     }
 
     template.push(
-      { type: 'separator' },
+      { type: "separator" },
       {
-        label: 'Quit',
-        role: 'quit',
-        accelerator: 'q',
+        label: "Quit",
+        role: "quit",
+        accelerator: "q",
         click: () => app.quit(),
       },
     );
@@ -156,10 +173,10 @@ export default class TrayManager {
   private toggleMainWindow(): void {
     const windows = BrowserWindow.getAllWindows();
     if (windows.length === 0) {
-      log.warn('[TrayManager] No windows available to toggle');
+      log.warn("[TrayManager] No windows available to toggle");
       return;
     }
-    
+
     const win = windows[0];
     if (win.isFocused()) {
       win.hide();
@@ -173,10 +190,9 @@ export default class TrayManager {
     if (!this.tray) {
       return;
     }
-    
+
     this.tray.popUpContextMenu();
   }
-
 
   private setTrayTitle(text: string): void {
     if (!this.tray) return;
@@ -187,7 +203,9 @@ export default class TrayManager {
 
   private setTrayTooltip(): void {
     if (!this.tray) return;
-    const tooltip = this.currentStateLabel ? `Gomodoro • ${this.currentStateLabel}` : 'Gomodoro';
+    const tooltip = this.currentStateLabel
+      ? `Gomodoro • ${this.currentStateLabel}`
+      : "Gomodoro";
     this.tray.setToolTip(tooltip);
   }
 
@@ -202,28 +220,36 @@ export default class TrayManager {
       this.setTrayTitle(mm);
     } else {
       this.currentState = null;
-      this.currentStateLabel = '';
+      this.currentStateLabel = "";
       this.currentPhase = null;
-      this.setTrayTitle('');
+      this.setTrayTitle("");
     }
     this.setTrayTooltip();
 
-    if (pomodoro && prevState && prevState !== 'FINISHED' && pomodoro.state === 'FINISHED') {
+    if (
+      pomodoro &&
+      prevState &&
+      prevState !== "FINISHED" &&
+      pomodoro.state === "FINISHED"
+    ) {
       this.notificationService?.notifyFinished(pomodoro.state, pomodoro.phase);
     }
   }
 
-  private emojiFor(state: PomodoroState | null, phase: PomodoroPhase | null): string {
+  private emojiFor(
+    state: PomodoroState | null,
+    phase: PomodoroPhase | null,
+  ): string {
     if (state === null) return EMOJI_MAP.DEFAULT;
-    if (state === 'PAUSED') return EMOJI_MAP.PAUSED;
-    if (state === 'FINISHED') return EMOJI_MAP.FINISHED;
-    
+    if (state === "PAUSED") return EMOJI_MAP.PAUSED;
+    if (state === "FINISHED") return EMOJI_MAP.FINISHED;
+
     switch (phase) {
-      case 'WORK':
+      case "WORK":
         return EMOJI_MAP.WORK;
-      case 'SHORT_BREAK':
+      case "SHORT_BREAK":
         return EMOJI_MAP.SHORT_BREAK;
-      case 'LONG_BREAK':
+      case "LONG_BREAK":
         return EMOJI_MAP.LONG_BREAK;
       default:
         return EMOJI_MAP.DEFAULT;
@@ -233,8 +259,6 @@ export default class TrayManager {
   private formatTime(totalSeconds: number): string {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   }
 }
-
-

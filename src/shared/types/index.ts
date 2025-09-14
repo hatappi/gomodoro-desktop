@@ -1,2 +1,2 @@
-export * from './gomodoro';
-export * from './electron';
+export * from "./gomodoro";
+export * from "./electron";

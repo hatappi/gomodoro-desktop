@@ -57,5 +57,3 @@ subscription OnPomodoroEvent($input: EventReceivedInput!) {
     }
   }
 }
-
-

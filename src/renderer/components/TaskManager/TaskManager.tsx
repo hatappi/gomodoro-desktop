@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Card,
@@ -17,14 +17,14 @@ import {
   DialogContent,
   DialogActions,
   IconButton,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   RadioButtonUnchecked as RadioButtonUncheckedIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-} from '@mui/icons-material';
-import { Task } from '../../../shared/types/gomodoro';
+} from "@mui/icons-material";
+import { Task } from "../../../shared/types/gomodoro";
 
 type Props = {
   tasks: Task[];
@@ -48,10 +48,12 @@ export default function TaskManager({
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [editTaskTitle, setEditTaskTitle] = useState('');
-  const [currentSelectedTaskId, setCurrentSelectedTaskId] = useState<string | null>(selectedTaskId);
-  
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [editTaskTitle, setEditTaskTitle] = useState("");
+  const [currentSelectedTaskId, setCurrentSelectedTaskId] = useState<
+    string | null
+  >(selectedTaskId);
+
   const selectedTaskRef = useRef<HTMLLIElement>(null);
   const keyboardCardRef = useRef<HTMLDivElement>(null);
 
@@ -64,8 +66,8 @@ export default function TaskManager({
   useEffect(() => {
     if (selectedTaskRef.current) {
       selectedTaskRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
+        behavior: "smooth",
+        block: "center",
       });
     }
   }, [currentSelectedTaskId]);
@@ -77,7 +79,7 @@ export default function TaskManager({
     }
 
     onCreateTask(title);
-    setNewTaskTitle('');
+    setNewTaskTitle("");
     setCreateDialogOpen(false);
   };
 
@@ -95,13 +97,16 @@ export default function TaskManager({
 
     onUpdateTask(editingTask.id, title);
     setEditingTask(null);
-    setEditTaskTitle('');
+    setEditTaskTitle("");
     setEditDialogOpen(false);
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    const willDeleteTaskIndex = tasks.findIndex(task => task.id === taskId);
-    const newSelectedTaskIndex = willDeleteTaskIndex > 0 ? willDeleteTaskIndex - 1 : willDeleteTaskIndex + 1;
+    const willDeleteTaskIndex = tasks.findIndex((task) => task.id === taskId);
+    const newSelectedTaskIndex =
+      willDeleteTaskIndex > 0
+        ? willDeleteTaskIndex - 1
+        : willDeleteTaskIndex + 1;
 
     await onDeleteTask(taskId);
 
@@ -113,20 +118,20 @@ export default function TaskManager({
   };
 
   const handleCreateDialogKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       event.preventDefault();
       handleCreateTask();
-    } else if (event.key === 'Escape') {
+    } else if (event.key === "Escape") {
       event.preventDefault();
       setCreateDialogOpen(false);
     }
   };
 
   const handleEditDialogKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       event.preventDefault();
       handleUpdateTask();
-    } else if (event.key === 'Escape') {
+    } else if (event.key === "Escape") {
       event.preventDefault();
       setEditDialogOpen(false);
     }
@@ -140,8 +145,8 @@ export default function TaskManager({
       }
 
       switch (event.key) {
-        case 'ArrowUp':
-        case 'k': {
+        case "ArrowUp":
+        case "k": {
           event.preventDefault();
           if (tasks.length === 0) break;
 
@@ -149,16 +154,18 @@ export default function TaskManager({
             setCurrentSelectedTaskId(tasks[0].id);
             break;
           }
-          
-          const currentIndex = tasks.findIndex(task => task.id === currentSelectedTaskId);
+
+          const currentIndex = tasks.findIndex(
+            (task) => task.id === currentSelectedTaskId,
+          );
           if (currentIndex > 0 && currentIndex < tasks.length) {
             setCurrentSelectedTaskId(tasks[currentIndex - 1].id);
           }
 
           break;
         }
-        case 'ArrowDown':
-        case 'j': {
+        case "ArrowDown":
+        case "j": {
           event.preventDefault();
           if (tasks.length === 0) break;
 
@@ -166,37 +173,41 @@ export default function TaskManager({
             setCurrentSelectedTaskId(tasks[0].id);
             break;
           }
-          
-          const currentIndex = tasks.findIndex(task => task.id === currentSelectedTaskId);
+
+          const currentIndex = tasks.findIndex(
+            (task) => task.id === currentSelectedTaskId,
+          );
           if (currentIndex >= 0 && currentIndex < tasks.length - 1) {
             setCurrentSelectedTaskId(tasks[currentIndex + 1].id);
           }
 
           break;
         }
-        case 'Enter': {
+        case "Enter": {
           event.preventDefault();
           if (currentSelectedTaskId) {
             onSelectTask(currentSelectedTaskId);
           }
           break;
         }
-        case 'e': {
+        case "e": {
           event.preventDefault();
-          const currentTask = tasks.find(task => task.id === currentSelectedTaskId);
+          const currentTask = tasks.find(
+            (task) => task.id === currentSelectedTaskId,
+          );
           if (currentTask) {
             handleEditTask(currentTask);
           }
           break;
         }
-        case 'd': {
+        case "d": {
           event.preventDefault();
           if (currentSelectedTaskId) {
             handleDeleteTask(currentSelectedTaskId);
           }
           break;
         }
-        case 'n': {
+        case "n": {
           event.preventDefault();
           setCreateDialogOpen(true);
           break;
@@ -206,12 +217,19 @@ export default function TaskManager({
 
     const ref = keyboardCardRef.current;
     if (ref) {
-      ref.addEventListener('keydown', handleKeyDown);
+      ref.addEventListener("keydown", handleKeyDown);
       return () => {
-        ref.removeEventListener('keydown', handleKeyDown);
+        ref.removeEventListener("keydown", handleKeyDown);
       };
     }
-  }, [tasks, currentSelectedTaskId, createDialogOpen, editDialogOpen, onSelectTask, handleDeleteTask]);
+  }, [
+    tasks,
+    currentSelectedTaskId,
+    createDialogOpen,
+    editDialogOpen,
+    onSelectTask,
+    handleDeleteTask,
+  ]);
 
   useEffect(() => {
     // To enable shortcuts when tasks are visible, need to focus it.
@@ -220,129 +238,149 @@ export default function TaskManager({
 
   return (
     <>
-    <Card 
-      ref={keyboardCardRef}
-      tabIndex={0}
-      sx={{ 
-        height: 'clamp(400px, 60vh, 700px)',
-        display: 'flex', 
-        flexDirection: 'column',
-        '&:focus-visible': {
-          outline: 'none',
-        }
-      }}
-    >
-      <CardContent sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        height: '100%',
-        py: 2,
-        '&:last-child': {
-          py: 2
-        }
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6" component="h2">
-            Tasks
-          </Typography>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<AddIcon />}
-            onClick={() => setCreateDialogOpen(true)}
-            disabled={loading}
-          >
-            Add Task
-          </Button>
-        </Box>
-
-        {/* Scrollable Task List */}
-        <Box sx={{ 
-          flex: 1, 
-          overflow: 'auto',
-          '&::-webkit-scrollbar': {
-            width: '8px',
+      <Card
+        ref={keyboardCardRef}
+        tabIndex={0}
+        sx={{
+          height: "clamp(400px, 60vh, 700px)",
+          display: "flex",
+          flexDirection: "column",
+          "&:focus-visible": {
+            outline: "none",
           },
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: 'transparent',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: 'divider',
-            borderRadius: '4px',
-            '&:hover': {
-              backgroundColor: 'text.secondary',
+        }}
+      >
+        <CardContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            py: 2,
+            "&:last-child": {
+              py: 2,
             },
-          },
-        }}>
-          {tasks.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-              No tasks yet. Create your first task to get started!
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6" component="h2">
+              Tasks
             </Typography>
-          ) : (
-            <List dense>
-              {tasks.map((task) => (
-                <ListItem 
-                  key={task.id} 
-                  sx={{ p: 0 }}
-                  ref={currentSelectedTaskId === task.id ? selectedTaskRef : null}
-                >
-                  <ListItemButton
-                    selected={currentSelectedTaskId === task.id}
-                    onClick={() => onSelectTask(task.id)}
-                    sx={{ py: 0 }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 36 }}>
-                      <RadioButtonUncheckedIcon 
-                        color={selectedTaskId === task.id ? 'primary' : 'action'}
-                      />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={task.title}
-                      primaryTypographyProps={{
-                        variant: 'body2',
-                        fontWeight: selectedTaskId === task.id ? 600 : 400,
-                      }}
-                      secondary={new Date(task.createdAt).toLocaleDateString()}
-                      secondaryTypographyProps={{
-                        variant: 'caption',
-                        color: 'text.secondary',
-                      }}
-                      sx={{ m: 0 }}
-                    />
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditTask(task);
-                      }}
-                      disabled={loading}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTask(task.id);
-                      }}
-                      disabled={loading}
-                      color="error"
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </Box>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={() => setCreateDialogOpen(true)}
+              disabled={loading}
+            >
+              Add Task
+            </Button>
+          </Box>
 
-      </CardContent>
-    </Card>
+          {/* Scrollable Task List */}
+          <Box
+            sx={{
+              flex: 1,
+              overflow: "auto",
+              "&::-webkit-scrollbar": {
+                width: "8px",
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "transparent",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "divider",
+                borderRadius: "4px",
+                "&:hover": {
+                  backgroundColor: "text.secondary",
+                },
+              },
+            }}
+          >
+            {tasks.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: "center" }}
+              >
+                No tasks yet. Create your first task to get started!
+              </Typography>
+            ) : (
+              <List dense>
+                {tasks.map((task) => (
+                  <ListItem
+                    key={task.id}
+                    sx={{ p: 0 }}
+                    ref={
+                      currentSelectedTaskId === task.id ? selectedTaskRef : null
+                    }
+                  >
+                    <ListItemButton
+                      selected={currentSelectedTaskId === task.id}
+                      onClick={() => onSelectTask(task.id)}
+                      sx={{ py: 0 }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        <RadioButtonUncheckedIcon
+                          color={
+                            selectedTaskId === task.id ? "primary" : "action"
+                          }
+                        />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={task.title}
+                        primaryTypographyProps={{
+                          variant: "body2",
+                          fontWeight: selectedTaskId === task.id ? 600 : 400,
+                        }}
+                        secondary={new Date(
+                          task.createdAt,
+                        ).toLocaleDateString()}
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                          color: "text.secondary",
+                        }}
+                        sx={{ m: 0 }}
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditTask(task);
+                        }}
+                        disabled={loading}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTask(task.id);
+                        }}
+                        disabled={loading}
+                        color="error"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
 
       {/* Create Task Dialog */}
-      <Dialog 
-        open={createDialogOpen} 
+      <Dialog
+        open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
         fullWidth
       >
@@ -361,11 +399,17 @@ export default function TaskManager({
         </DialogContent>
 
         <DialogActions>
-          <Container sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button onClick={() => setCreateDialogOpen(false)} color="secondary" variant="outlined">
+          <Container
+            sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}
+          >
+            <Button
+              onClick={() => setCreateDialogOpen(false)}
+              color="secondary"
+              variant="outlined"
+            >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateTask}
               variant="contained"
               disabled={!newTaskTitle.trim()}
@@ -377,8 +421,8 @@ export default function TaskManager({
       </Dialog>
 
       {/* Edit Task Dialog */}
-      <Dialog 
-        open={editDialogOpen} 
+      <Dialog
+        open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
         fullWidth
       >
@@ -398,11 +442,17 @@ export default function TaskManager({
         </DialogContent>
 
         <DialogActions>
-          <Container sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button onClick={() => setEditDialogOpen(false)} color="secondary" variant="outlined">
+          <Container
+            sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}
+          >
+            <Button
+              onClick={() => setEditDialogOpen(false)}
+              color="secondary"
+              variant="outlined"
+            >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleUpdateTask}
               variant="contained"
               disabled={!editTaskTitle.trim()}

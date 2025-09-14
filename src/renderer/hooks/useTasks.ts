@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Task } from '../../shared/types/gomodoro';
-import log from 'electron-log/renderer'
+import { useState, useEffect, useCallback } from "react";
+import { Task } from "../../shared/types/gomodoro";
+import log from "electron-log/renderer";
 
 type UseTasksReturn = {
   tasks: Task[];
@@ -24,66 +24,75 @@ export function useTasks(): UseTasksReturn {
     try {
       setLoading(true);
       setError(null);
-      
+
       const tasks = await window.electronAPI.listTasks();
       setTasks(tasks);
     } catch (err) {
-      setError('Failed to fetch tasks');
-      log.error('Failed to fetch tasks:', err);
+      setError("Failed to fetch tasks");
+      log.error("Failed to fetch tasks:", err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const createTask = useCallback(async (title: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      await window.electronAPI.createTask({ title });
-      await refreshTasks();
-    } catch (err) {
-      setError('Failed to create task');
-      log.error('Failed to create task:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [refreshTasks]);
+  const createTask = useCallback(
+    async (title: string) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  const updateTask = useCallback(async (taskId: string, title: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      await window.electronAPI.updateTask({ taskId, title });
-      await refreshTasks();
-    } catch (err) {
-      setError('Failed to update task');
-      log.error('Failed to update task:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [refreshTasks]);
-
-  const deleteTask = useCallback(async (taskId: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      await window.electronAPI.deleteTask({ taskId });
-      await refreshTasks();
-
-      // If deleted task was selected, deselect it
-      if (selectedTaskId === taskId) {
-        setSelectedTaskId(null);
+        await window.electronAPI.createTask({ title });
+        await refreshTasks();
+      } catch (err) {
+        setError("Failed to create task");
+        log.error("Failed to create task:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Failed to delete task');
-      log.error('Failed to delete task:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [refreshTasks, selectedTaskId]);
+    },
+    [refreshTasks],
+  );
+
+  const updateTask = useCallback(
+    async (taskId: string, title: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        await window.electronAPI.updateTask({ taskId, title });
+        await refreshTasks();
+      } catch (err) {
+        setError("Failed to update task");
+        log.error("Failed to update task:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [refreshTasks],
+  );
+
+  const deleteTask = useCallback(
+    async (taskId: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        await window.electronAPI.deleteTask({ taskId });
+        await refreshTasks();
+
+        // If deleted task was selected, deselect it
+        if (selectedTaskId === taskId) {
+          setSelectedTaskId(null);
+        }
+      } catch (err) {
+        setError("Failed to delete task");
+        log.error("Failed to delete task:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [refreshTasks, selectedTaskId],
+  );
 
   const selectTask = useCallback((taskId: string | null) => {
     setSelectedTaskId(taskId);
