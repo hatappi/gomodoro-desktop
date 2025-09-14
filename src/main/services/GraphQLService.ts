@@ -15,19 +15,16 @@ import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 export type GraphQLServiceOptions = {
   httpUrl: string;
   wsUrl: string;
-  authToken?: string;
 };
 
 export class GraphQLService {
   private readonly httpUrl: string;
   private readonly wsUrl: string;
-  private readonly authToken?: string;
   private apollo: ApolloClient<NormalizedCacheObject>;
 
   constructor(options: GraphQLServiceOptions) {
     this.httpUrl = options.httpUrl;
     this.wsUrl = options.wsUrl;
-    this.authToken = options.authToken;
     this.apollo = this.createApolloClient();
   }
 
@@ -57,14 +54,12 @@ export class GraphQLService {
     const httpLink = new HttpLink({
       uri: this.httpUrl,
       fetch: globalThis.fetch,
-      headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : undefined,
     });
 
     const wsLink = new GraphQLWsLink(
       createClient({
         url: this.wsUrl.startsWith('ws') ? this.wsUrl : this.wsUrl.replace(/^http/, 'ws'),
         webSocketImpl: WebSocket,
-        connectionParams: this.authToken ? { headers: { Authorization: `Bearer ${this.authToken}` } } : undefined,
         retryAttempts: 3,
       }),
     );
@@ -83,6 +78,7 @@ export class GraphQLService {
       cache: new InMemoryCache(),
       connectToDevTools: false,
       defaultOptions: {
+        // To avoid unexpected caching, we always fetch the latest data
         query: { fetchPolicy: 'no-cache' },
         watchQuery: { fetchPolicy: 'no-cache' }
       }
