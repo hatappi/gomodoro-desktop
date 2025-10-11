@@ -57,6 +57,17 @@ export default function App(): React.ReactElement {
     }
   }, [isLoading, tasksLoading, pomodoro, selectedTaskId, selectTask]);
 
+  // Listen for show task manager event from main process
+  useEffect(() => {
+    const off = window.electronAPI.onShowTaskManager(() => {
+      setShowTaskManager(true);
+    });
+
+    return () => {
+      off();
+    };
+  }, []);
+
   const canStart =
     (!pomodoro ||
       (pomodoro.state !== "ACTIVE" && pomodoro.state !== "PAUSED")) &&
