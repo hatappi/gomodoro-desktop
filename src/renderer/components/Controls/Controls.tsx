@@ -263,8 +263,7 @@ export default function Controls(props: Props): React.ReactElement {
                     "&:hover": {
                       backgroundColor: (theme) =>
                         darken(theme.palette.success.main, 0.1),
-                      borderColor: (theme) =>
-                        `${theme.palette.success.main}66`,
+                      borderColor: (theme) => `${theme.palette.success.main}66`,
                       transform: "translateY(-1px)",
                     },
                     "&:disabled": {
