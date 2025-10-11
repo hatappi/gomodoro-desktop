@@ -39,6 +39,12 @@ mutation StopPomodoro {
   }
 }
 
+mutation ResetPomodoro {
+  resetPomodoro {
+    ...PomodoroDetails
+  }
+}
+
 subscription OnPomodoroEvent($input: EventReceivedInput!) {
   eventReceived(input: $input) {
     eventCategory

@@ -9,6 +9,7 @@ export type UsePomodoroResult = {
   pause: () => Promise<void>;
   resume: () => Promise<void>;
   stop: () => Promise<void>;
+  reset: () => Promise<void>;
 };
 
 export function usePomodoro(): UsePomodoroResult {
@@ -108,8 +109,23 @@ export function usePomodoro(): UsePomodoroResult {
     }
   };
 
+  const reset = async () => {
+    if (!pomodoro) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      await window.electronAPI.resetPomodoro();
+      const current = await window.electronAPI.getCurrentPomodoro();
+      setPomodoro(current);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return useMemo(
-    () => ({ pomodoro, isLoading, error, start, pause, resume, stop }),
+    () => ({ pomodoro, isLoading, error, start, pause, resume, stop, reset }),
     [pomodoro, isLoading, error],
   );
 }

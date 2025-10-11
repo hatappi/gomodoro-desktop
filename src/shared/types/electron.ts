@@ -20,6 +20,7 @@ export interface ElectronAPI {
   pausePomodoro: () => Promise<Pomodoro>;
   resumePomodoro: () => Promise<Pomodoro>;
   stopPomodoro: () => Promise<Pomodoro>;
+  resetPomodoro: () => Promise<Pomodoro>;
   onPomodoroEvent: (listener: (event: Pomodoro) => void) => () => void;
 
   // Task management

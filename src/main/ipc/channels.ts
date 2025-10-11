@@ -6,6 +6,7 @@ export const IPC_CHANNELS = {
   PAUSE_POMODORO: "pomodoro:pause",
   RESUME_POMODORO: "pomodoro:resume",
   STOP_POMODORO: "pomodoro:stop",
+  RESET_POMODORO: "pomodoro:reset",
   POMODORO_EVENT: "pomodoro:event",
   LIST_TASKS: "task:list",
   CREATE_TASK: "task:create",

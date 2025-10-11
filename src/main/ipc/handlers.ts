@@ -95,6 +95,12 @@ export function registerIpcHandlers(gql: GraphQLService): void {
     });
   });
 
+  ipcMain.handle(IPC_CHANNELS.RESET_POMODORO, async () => {
+    return withIpcErrorHandling(async () => {
+      return pomodoroService.resetPomodoro();
+    });
+  });
+
   // Task management handlers
   ipcMain.handle(IPC_CHANNELS.LIST_TASKS, async () => {
     return withIpcErrorHandling(async () => {
