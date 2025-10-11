@@ -31,6 +31,7 @@ const api = {
   pausePomodoro: () => invokeIpc<Pomodoro>(IPC_CHANNELS.PAUSE_POMODORO),
   resumePomodoro: () => invokeIpc<Pomodoro>(IPC_CHANNELS.RESUME_POMODORO),
   stopPomodoro: () => invokeIpc<Pomodoro>(IPC_CHANNELS.STOP_POMODORO),
+  resetPomodoro: () => invokeIpc<Pomodoro>(IPC_CHANNELS.RESET_POMODORO),
   onPomodoroEvent: (listener: (event: Pomodoro) => void) => {
     const handler = (_: unknown, payload: Pomodoro) => listener(payload);
     ipcRenderer.on(IPC_CHANNELS.POMODORO_EVENT, handler);

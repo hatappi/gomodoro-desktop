@@ -25,6 +25,7 @@ export default function App(): React.ReactElement {
     pause,
     resume,
     stop,
+    reset,
   } = usePomodoro();
   const {
     tasks,
@@ -73,6 +74,11 @@ export default function App(): React.ReactElement {
   };
 
   const handleChangeTask = () => {
+    setShowTaskManager(true);
+  };
+
+  const handleReset = async () => {
+    await reset();
     setShowTaskManager(true);
   };
 
@@ -142,6 +148,7 @@ export default function App(): React.ReactElement {
                   onResume={() => void resume()}
                   onStop={() => void stop()}
                   onChangeTask={handleChangeTask}
+                  onReset={handleReset}
                 />
               </Box>
             </Fade>

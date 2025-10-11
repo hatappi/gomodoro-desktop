@@ -15,6 +15,7 @@ import {
   Pause as PauseIcon,
   Stop as StopIcon,
   SwapHoriz as ChangeTaskIcon,
+  Refresh as ResetIcon,
 } from "@mui/icons-material";
 
 type ControlAction = {
@@ -37,6 +38,7 @@ type Props = {
   onResume: () => void;
   onStop: () => void;
   onChangeTask: () => void;
+  onReset: () => void;
 };
 
 export default function Controls(props: Props): React.ReactElement {
@@ -52,6 +54,7 @@ export default function Controls(props: Props): React.ReactElement {
     onResume,
     onStop,
     onChangeTask,
+    onReset,
   } = props;
   const controlsRef = useRef<HTMLDivElement>(null);
 
@@ -110,6 +113,13 @@ export default function Controls(props: Props): React.ReactElement {
           }
           break;
         }
+        case "r": {
+          event.preventDefault();
+          if (isFinished) {
+            onReset();
+          }
+          break;
+        }
         case "Enter": {
           event.preventDefault();
           if (canStart) {
@@ -143,6 +153,7 @@ export default function Controls(props: Props): React.ReactElement {
     onResume,
     onStop,
     onChangeTask,
+    onReset,
   ]);
 
   useEffect(() => {
@@ -203,37 +214,71 @@ export default function Controls(props: Props): React.ReactElement {
         )}
 
         {isFinished && (
-          <Tooltip title="Change Task" arrow>
-            <span>
-              <IconButton
-                disabled={isLoading}
-                onClick={onChangeTask}
-                sx={{
-                  height: "clamp(40px, 8vw, 64px)",
-                  width: "clamp(40px, 8vw, 64px)",
-                  borderRadius: 6,
-                  backgroundColor: (theme) =>
-                    lighten(theme.palette.info.main, 0.1),
-                  border: (theme) => `2px solid ${theme.palette.info.main}33`,
-                  "&:hover": {
+          <>
+            <Tooltip title="Change Task" arrow>
+              <span>
+                <IconButton
+                  disabled={isLoading}
+                  onClick={onChangeTask}
+                  sx={{
+                    height: "clamp(40px, 8vw, 64px)",
+                    width: "clamp(40px, 8vw, 64px)",
+                    borderRadius: 6,
                     backgroundColor: (theme) =>
-                      darken(theme.palette.info.main, 0.1),
-                    borderColor: (theme) => `${theme.palette.info.main}66`,
-                    transform: "translateY(-1px)",
-                  },
-                  "&:disabled": {
-                    borderColor: "rgba(255, 255, 255, 0.12)",
-                    backgroundColor: "transparent",
-                  },
-                  transition: "all 0.2s ease-in-out",
-                }}
-              >
-                <ChangeTaskIcon
-                  sx={{ fontSize: "clamp(1.2rem, 4vw, 2.5rem)" }}
-                />
-              </IconButton>
-            </span>
-          </Tooltip>
+                      lighten(theme.palette.info.main, 0.1),
+                    border: (theme) => `2px solid ${theme.palette.info.main}33`,
+                    "&:hover": {
+                      backgroundColor: (theme) =>
+                        darken(theme.palette.info.main, 0.1),
+                      borderColor: (theme) => `${theme.palette.info.main}66`,
+                      transform: "translateY(-1px)",
+                    },
+                    "&:disabled": {
+                      borderColor: "rgba(255, 255, 255, 0.12)",
+                      backgroundColor: "transparent",
+                    },
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
+                  <ChangeTaskIcon
+                    sx={{ fontSize: "clamp(1.2rem, 4vw, 2.5rem)" }}
+                  />
+                </IconButton>
+              </span>
+            </Tooltip>
+
+            <Tooltip title="Reset Pomodoro" arrow>
+              <span>
+                <IconButton
+                  disabled={isLoading}
+                  onClick={onReset}
+                  sx={{
+                    height: "clamp(40px, 8vw, 64px)",
+                    width: "clamp(40px, 8vw, 64px)",
+                    borderRadius: 6,
+                    backgroundColor: (theme) =>
+                      lighten(theme.palette.success.main, 0.1),
+                    border: (theme) =>
+                      `2px solid ${theme.palette.success.main}33`,
+                    "&:hover": {
+                      backgroundColor: (theme) =>
+                        darken(theme.palette.success.main, 0.1),
+                      borderColor: (theme) =>
+                        `${theme.palette.success.main}66`,
+                      transform: "translateY(-1px)",
+                    },
+                    "&:disabled": {
+                      borderColor: "rgba(255, 255, 255, 0.12)",
+                      backgroundColor: "transparent",
+                    },
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
+                  <ResetIcon sx={{ fontSize: "clamp(1.2rem, 4vw, 2.5rem)" }} />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </>
         )}
 
         {!isFinished && (

@@ -12,6 +12,8 @@ import {
   type ResumePomodoroMutation,
   StopPomodoroDocument,
   type StopPomodoroMutation,
+  ResetPomodoroDocument,
+  type ResetPomodoroMutation,
   OnPomodoroEventDocument,
   type OnPomodoroEventSubscription,
   type OnPomodoroEventSubscriptionVariables,
@@ -127,6 +129,26 @@ export default class PomodoroService {
     const p = data.stopPomodoro;
     if (!p)
       throw new Error("Failed to stop pomodoro. stopped pomodoro not found.");
+    return {
+      id: p.id,
+      state: p.state,
+      taskId: p.taskId,
+      phase: p.phase,
+      phaseCount: p.phaseCount,
+      phaseDurationSec: p.phaseDurationSec,
+      remainingTimeSec: p.remainingTimeSec,
+      elapsedTimeSec: p.elapsedTimeSec,
+    };
+  }
+
+  public async resetPomodoro(): Promise<Pomodoro> {
+    const data = await this.gql.mutate<
+      ResetPomodoroMutation,
+      Record<string, never>
+    >(ResetPomodoroDocument, {} as Record<string, never>);
+    const p = data.resetPomodoro;
+    if (!p)
+      throw new Error("Failed to reset pomodoro. reset pomodoro not found.");
     return {
       id: p.id,
       state: p.state,
