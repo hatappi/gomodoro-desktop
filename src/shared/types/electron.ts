@@ -22,6 +22,7 @@ export interface ElectronAPI {
   stopPomodoro: () => Promise<Pomodoro>;
   resetPomodoro: () => Promise<Pomodoro>;
   onPomodoroEvent: (listener: (event: Pomodoro) => void) => () => void;
+  onShowTaskManager: (listener: () => void) => () => void;
 
   // Task management
   listTasks: () => Promise<Task[]>;

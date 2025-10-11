@@ -38,6 +38,12 @@ const api = {
     return () =>
       ipcRenderer.removeListener(IPC_CHANNELS.POMODORO_EVENT, handler);
   },
+  onShowTaskManager: (listener: () => void) => {
+    const handler = () => listener();
+    ipcRenderer.on(IPC_CHANNELS.SHOW_TASK_MANAGER, handler);
+    return () =>
+      ipcRenderer.removeListener(IPC_CHANNELS.SHOW_TASK_MANAGER, handler);
+  },
 
   // Task management
   listTasks: () => invokeIpc<Task[]>(IPC_CHANNELS.LIST_TASKS),

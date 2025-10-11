@@ -6,6 +6,7 @@ import {
   Tray,
   nativeImage,
 } from "electron";
+import { IPC_CHANNELS } from "../ipc/channels";
 import PomodoroService from "../services/PomodoroService";
 import NotificationService from "../services/NotificationService";
 import type {
@@ -89,11 +90,14 @@ export default class TrayManager {
   private buildMenu(): Menu {
     const isActive = this.currentState === "ACTIVE";
     const isPaused = this.currentState === "PAUSED";
+    const isFinished = this.currentState === "FINISHED";
 
     const canStart = !isActive && !isPaused;
     const canPause = isActive;
     const canResume = isPaused;
     const canStop = isActive || isPaused;
+    const canReset = isFinished;
+    const canChangeTask = isFinished;
 
     const template: MenuItemConstructorOptions[] = [
       {
@@ -130,7 +134,7 @@ export default class TrayManager {
     if (canResume) {
       actionItems.push({
         label: "Resume",
-        accelerator: "r",
+        accelerator: "u",
         click: () =>
           this.pomodoroService.resumePomodoro().catch((error) => {
             log.error("[TrayManager] Failed to resume pomodoro:", error);
@@ -145,6 +149,29 @@ export default class TrayManager {
           this.pomodoroService.stopPomodoro().catch((error) => {
             log.error("[TrayManager] Failed to stop pomodoro:", error);
           }),
+      });
+    }
+    if (canChangeTask) {
+      actionItems.push({
+        label: "Change Task",
+        accelerator: "c",
+        click: () => {
+          this.showTaskManagerAndWindow();
+        },
+      });
+    }
+    if (canReset) {
+      actionItems.push({
+        label: "Reset",
+        accelerator: "r",
+        click: async () => {
+          try {
+            await this.pomodoroService.resetPomodoro();
+            this.showTaskManagerAndWindow();
+          } catch (error) {
+            log.error("[TrayManager] Failed to reset pomodoro:", error);
+          }
+        },
       });
     }
 
@@ -184,6 +211,21 @@ export default class TrayManager {
       win.show();
       win.focus();
     }
+  }
+
+  private showTaskManagerAndWindow(): void {
+    const windows = BrowserWindow.getAllWindows();
+    if (windows.length === 0) {
+      log.warn("[TrayManager] No windows available to show");
+      return;
+    }
+
+    const win = windows[0];
+    // Send event to renderer to show task manager
+    win.webContents.send(IPC_CHANNELS.SHOW_TASK_MANAGER);
+    // Then show and focus the window
+    win.show();
+    win.focus();
   }
 
   public showTrayMenu(): void {

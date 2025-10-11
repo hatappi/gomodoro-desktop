@@ -1,6 +1,7 @@
 export const IPC_CHANNELS = {
   GET_CONFIG: "app:get-config",
   CHECK_GRAPHQL_CONNECTION: "app:check-graphql-connection",
+  SHOW_TASK_MANAGER: "app:show-task-manager",
   GET_CURRENT_POMODORO: "pomodoro:get-current",
   START_POMODORO: "pomodoro:start",
   PAUSE_POMODORO: "pomodoro:pause",
